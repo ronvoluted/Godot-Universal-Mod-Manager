@@ -269,4 +269,19 @@ func get_mod_by_name(mod_name: String) -> Control:
 	return null
 
 func go_back() -> void:
-	get_tree().change_scene_to_file("res://Scenes/Main.tscn")
+	var scene_path := "res://Scenes/Main.tscn"
+	ResourceLoader.load_threaded_request(scene_path)
+	while true:
+		var status := ResourceLoader.load_threaded_get_status(scene_path)
+		match status:
+			ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+				await get_tree().process_frame
+			ResourceLoader.THREAD_LOAD_LOADED:
+				get_tree().change_scene_to_packed(
+					ResourceLoader.load_threaded_get(scene_path) as PackedScene
+				)
+				return
+			_:
+				push_error("Failed to load scene: %s" % scene_path)
+				get_tree().change_scene_to_file(scene_path)
+				return

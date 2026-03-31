@@ -29,5 +29,21 @@ func load_mp3(path: String) -> AudioStreamMP3:
 func load_resource(path: String) -> Resource:
 	return load(get_full_path(path))
 
+func load_resource_threaded(path: String) -> Resource:
+	var full_path := get_full_path(path)
+	ResourceLoader.load_threaded_request(full_path)
+
+	while true:
+		var status := ResourceLoader.load_threaded_get_status(full_path)
+		match status:
+			ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+				await Engine.get_main_loop().process_frame
+			ResourceLoader.THREAD_LOAD_LOADED:
+				return ResourceLoader.load_threaded_get(full_path)
+			_:
+				push_error("GUMM: Failed to load resource: %s" % full_path)
+				return null
+	return null
+
 func get_full_path(path: String) -> String:
 	return base_path.path_join(path.trim_prefix("mod://"))

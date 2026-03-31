@@ -144,7 +144,22 @@ func add_game_entry(game: Registry.GameData) -> Control:
 
 func open_game(path: String):
 	get_tree().set_meta(&"current_game", path)
-	get_tree().change_scene_to_file("res://Scenes/Game.tscn")
+	var scene_path := "res://Scenes/Game.tscn"
+	ResourceLoader.load_threaded_request(scene_path)
+	while true:
+		var status := ResourceLoader.load_threaded_get_status(scene_path)
+		match status:
+			ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+				await get_tree().process_frame
+			ResourceLoader.THREAD_LOAD_LOADED:
+				get_tree().change_scene_to_packed(
+					ResourceLoader.load_threaded_get(scene_path) as PackedScene
+				)
+				return
+			_:
+				push_error("Failed to load scene: %s" % scene_path)
+				get_tree().change_scene_to_file(scene_path)
+				return
 
 func set_text(edit: LineEdit, text: String):
 	edit.text = text
