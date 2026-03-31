@@ -13,7 +13,7 @@ func _enter_tree() -> void:
 
 func save_game_entry_list() -> void:
 	var game_entries := FileAccess.open(GAME_ENTRIES_FILE, FileAccess.WRITE)
-	var game_list := games.map(func(game: GameData) -> Dictionary: return game.get_var())
+	var game_list := games.map(func(game: GameData) -> Dictionary[String, Variant]: return game.get_var())
 	game_entries.store_string(var_to_str(game_list))
 
 func add_new_game_entry(entry_path: String, game_path: String) -> GameData:
@@ -56,14 +56,14 @@ class GameData:
 	static var mod_loader_scene := "GUMM_mod_loader.tscn"
 
 	class ModData:
-		static var _defaults := {load_path = "", active = false}
+		static var _defaults: Dictionary[String, Variant] = {load_path = "", active = false}
 
 		var load_path: String
 		var active: bool
 		var entry: ModDescriptor
 
 		func _init(data: Dictionary) -> void:
-			var config := _defaults.duplicate()
+			var config: Dictionary[String, Variant] = _defaults.duplicate()
 			config.merge(data, true)
 			load_path = config.load_path
 			active = config.active
@@ -72,10 +72,10 @@ class GameData:
 			if not entry.load_data(load_path):
 				active = false
 
-		func get_var() -> Dictionary:
+		func get_var() -> Dictionary[String, Variant]:
 			return {load_path = load_path, active = active}
-	
-	static var _defaults := {entry_path = "", game_path = "", installed_mods = []}
+
+	static var _defaults: Dictionary[String, Variant] = {entry_path = "", game_path = "", installed_mods = []}
 
 	var entry: GameDescriptor
 	var entry_path: String
@@ -84,7 +84,7 @@ class GameData:
 	var installed_mods: Array[ModData]
 
 	func _init(data: Dictionary) -> void:
-		var config := _defaults.duplicate()
+		var config: Dictionary[String, Variant] = _defaults.duplicate()
 		config.merge(data, true)
 		entry_path = config.entry_path
 		game_path = config.game_path
@@ -95,6 +95,6 @@ class GameData:
 
 		installed_mods.assign(Array(config.installed_mods).map(ModData.new))
 	
-	func get_var() -> Dictionary:
-		var mods := installed_mods.map(func(mod: ModData) -> Dictionary: return mod.get_var())
+	func get_var() -> Dictionary[String, Variant]:
+		var mods := installed_mods.map(func(mod: ModData) -> Dictionary[String, Variant]: return mod.get_var())
 		return {entry_path = entry_path, game_path = game_path, mods_enabled = mods_enabled, installed_mods = mods}
