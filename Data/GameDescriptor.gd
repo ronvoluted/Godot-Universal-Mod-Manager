@@ -18,7 +18,7 @@ func load_data(path: String) -> bool:
 	main_scene = cfg.get_value(section, "main_scene")
 	return true
 
-func save_data(path: String):
+func save_data(path: String) -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value(section, "title", title)
 	cfg.set_value(section, "godot_version", godot_version)

@@ -44,7 +44,7 @@ func validate_add() -> void:
 	
 	set_add_error("")
 
-func set_add_error(error: String):
+func set_add_error(error: String) -> void:
 	%AddError.text = error
 	$AddGame.get_ok_button().disabled = not error.is_empty()
 
@@ -110,7 +110,7 @@ func validate_create() -> void:
 	
 	set_create_error("")
 
-func set_create_error(error: String):
+func set_create_error(error: String) -> void:
 	%CreateError.text = error
 	$CreateGame.get_ok_button().disabled = not error.is_empty()
 
@@ -133,7 +133,7 @@ func create_game_entry() -> void:
 	add_game_entry(entry_data)
 
 func add_game_entry(game: Registry.GameData) -> Control:
-	var entry = preload("res://Nodes/GameEntry.tscn").instantiate()
+	var entry: Control = preload("res://Nodes/GameEntry.tscn").instantiate()
 	%GameList.add_child(entry)
 	entry.owner = self
 	entry.set_game(game)
@@ -142,7 +142,7 @@ func add_game_entry(game: Registry.GameData) -> Control:
 	entry.get_node(^"%Remove").pressed.connect(remove_game.bind(entry))
 	return entry
 
-func open_game(path: String):
+func open_game(path: String) -> void:
 	get_tree().set_meta(&"current_game", path)
 	var scene_path := "res://Scenes/Game.tscn"
 	ResourceLoader.load_threaded_request(scene_path)
@@ -161,16 +161,16 @@ func open_game(path: String):
 				get_tree().change_scene_to_file(scene_path)
 				return
 
-func set_text(edit: LineEdit, text: String):
+func set_text(edit: LineEdit, text: String) -> void:
 	edit.text = text
 	edit.text_changed.emit(text)
 
-func refresh_entry(old_entry: Control):
+func refresh_entry(old_entry: Control) -> void:
 	var new_entry := add_game_entry(old_entry.metadata)
 	new_entry.get_parent().move_child(new_entry, old_entry.get_index())
 	old_entry.queue_free()
 
-func remove_game(entry, confirmed := false):
+func remove_game(entry: Control, confirmed := false) -> void:
 	if confirmed:
 		entry = entry_to_delete
 		entry.missing = true

@@ -12,7 +12,7 @@ func _enter_tree() -> void:
 		for game: Dictionary in game_list:
 			games.append(GameData.new(game))
 
-func save_game_entry_list():
+func save_game_entry_list() -> void:
 	var game_entries := FileAccess.open(GAME_ENTRIES_FILE, FileAccess.WRITE)
 	var game_list := games.map(func(game: GameData) -> Dictionary: return game.get_var())
 	game_entries.store_string(var_to_str(game_list))
@@ -35,15 +35,15 @@ func add_new_mod_entry(game: GameData, load_path: String) -> GameData.ModData:
 	save_game_entry_list()
 	return mod
 
-func remove_game_entry(game: GameData):
+func remove_game_entry(game: GameData) -> void:
 	games.erase(game)
 	save_game_entry_list()
 
-func remove_mod_entry(game: GameData, mod: GameData.ModData):
+func remove_mod_entry(game: GameData, mod: GameData.ModData) -> void:
 	game.installed_mods.erase(mod)
 	save_game_entry_list()
 
-func smart_resize_to_80(image: Image):
+func smart_resize_to_80(image: Image) -> void:
 	if image.get_width() == image.get_height():
 		image.resize(80, 80, Image.INTERPOLATE_LANCZOS)
 	elif image.get_width() > image.get_height():

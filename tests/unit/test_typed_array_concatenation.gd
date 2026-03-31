@@ -5,7 +5,7 @@ extends GutTest
 
 # -- Basic typed array concatenation --
 
-func test_typed_int_array_concatenation():
+func test_typed_int_array_concatenation() -> void:
 	var a: Array[int] = [1, 2]
 	var b: Array[int] = [3, 4]
 	var result := a + b
@@ -13,7 +13,7 @@ func test_typed_int_array_concatenation():
 	assert_true(result is Array[int])
 
 
-func test_typed_string_array_concatenation():
+func test_typed_string_array_concatenation() -> void:
 	var a: Array[String] = ["hello"]
 	var b: Array[String] = ["world"]
 	var result := a + b
@@ -23,7 +23,7 @@ func test_typed_string_array_concatenation():
 
 # -- Empty array edge cases --
 
-func test_concatenation_with_empty_left():
+func test_concatenation_with_empty_left() -> void:
 	var a: Array[int] = []
 	var b: Array[int] = [1, 2]
 	var result := a + b
@@ -31,7 +31,7 @@ func test_concatenation_with_empty_left():
 	assert_true(result is Array[int])
 
 
-func test_concatenation_with_empty_right():
+func test_concatenation_with_empty_right() -> void:
 	var a: Array[int] = [1, 2]
 	var b: Array[int] = []
 	var result := a + b
@@ -39,7 +39,7 @@ func test_concatenation_with_empty_right():
 	assert_true(result is Array[int])
 
 
-func test_concatenation_both_empty():
+func test_concatenation_both_empty() -> void:
 	var a: Array[int] = []
 	var b: Array[int] = []
 	var result := a + b
@@ -49,7 +49,7 @@ func test_concatenation_both_empty():
 
 # -- Originals are not mutated --
 
-func test_concatenation_does_not_mutate_originals():
+func test_concatenation_does_not_mutate_originals() -> void:
 	var a: Array[int] = [1, 2]
 	var b: Array[int] = [3, 4]
 	var _result := a + b
@@ -59,7 +59,7 @@ func test_concatenation_does_not_mutate_originals():
 
 # -- Project typed arrays: Array[GameData] --
 
-func test_game_data_array_concatenation():
+func test_game_data_array_concatenation() -> void:
 	var a: Array[Registry.GameData] = []
 	var b: Array[Registry.GameData] = []
 	var game_a := Registry.GameData.new({entry_path = "/path/a", game_path = "/game/a", installed_mods = []})
@@ -74,7 +74,7 @@ func test_game_data_array_concatenation():
 	assert_eq(result[1].entry_path, "/path/b")
 
 
-func test_game_data_concatenation_with_empty():
+func test_game_data_concatenation_with_empty() -> void:
 	var a: Array[Registry.GameData] = []
 	var b: Array[Registry.GameData] = []
 	var game := Registry.GameData.new({entry_path = "/path/a", game_path = "/game/a", installed_mods = []})
@@ -88,7 +88,7 @@ func test_game_data_concatenation_with_empty():
 
 # -- Project typed arrays: Array[ModData] --
 
-func test_mod_data_array_concatenation():
+func test_mod_data_array_concatenation() -> void:
 	var a: Array[Registry.GameData.ModData] = []
 	var b: Array[Registry.GameData.ModData] = []
 	var mod_a := Registry.GameData.ModData.new({load_path = "/mods/a", active = true})
@@ -103,7 +103,7 @@ func test_mod_data_array_concatenation():
 	assert_eq(result[1].load_path, "/mods/b")
 
 
-func test_mod_data_concatenation_preserves_type():
+func test_mod_data_concatenation_preserves_type() -> void:
 	var a: Array[Registry.GameData.ModData] = []
 	var b: Array[Registry.GameData.ModData] = []
 	var result := a + b
@@ -113,7 +113,7 @@ func test_mod_data_concatenation_preserves_type():
 
 # -- Multiple concatenations --
 
-func test_chained_concatenation():
+func test_chained_concatenation() -> void:
 	var a: Array[int] = [1]
 	var b: Array[int] = [2]
 	var c: Array[int] = [3]
@@ -122,7 +122,7 @@ func test_chained_concatenation():
 	assert_true(result is Array[int])
 
 
-func test_chained_game_data_concatenation():
+func test_chained_game_data_concatenation() -> void:
 	var a: Array[Registry.GameData] = []
 	var b: Array[Registry.GameData] = []
 	var c: Array[Registry.GameData] = []

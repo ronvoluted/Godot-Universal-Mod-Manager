@@ -71,12 +71,12 @@ func import_mod_update() -> void:
 	%ImportModDescription.text = mod_data.description
 	%ImportModVersion.text = mod_data.version
 
-func set_import_error(error: String):
+func set_import_error(error: String) -> void:
 	%ImportError.add_theme_color_override(&"font_color", Color.RED)
 	%ImportError.text = error
 	$ImportModDialog.get_ok_button().disabled = not error.is_empty()
 
-func set_import_warning(warning: String):
+func set_import_warning(warning: String) -> void:
 	%ImportError.add_theme_color_override(&"font_color", Color.YELLOW)
 	%ImportError.text = warning
 
@@ -122,7 +122,7 @@ func begin_edit_mod() -> void:
 	validate_new_mod()
 	$NewModDialog.popup_centered()
 
-func validate_new_mod():
+func validate_new_mod() -> void:
 	if %NewModPath.text.is_empty():
 		set_create_error("Path can't be empty.")
 		return
@@ -144,12 +144,12 @@ func validate_new_mod():
 	if not %IconPath.disabled and (%IconPath.text.is_empty() or not FileAccess.file_exists(%IconPath.text) or not %IconPath.text.get_extension() in Registry.ICON_FORMATS):
 		set_create_warning("Icon path invalid. The mod will have no icon.")
 
-func set_create_error(error: String):
+func set_create_error(error: String) -> void:
 	%NewModError.add_theme_color_override(&"font_color", Color.RED)
 	%NewModError.text = error
 	$NewModDialog.get_ok_button().disabled = not error.is_empty()
 
-func set_create_warning(warning: String):
+func set_create_warning(warning: String) -> void:
 	%NewModError.add_theme_color_override(&"font_color", Color.YELLOW)
 	%NewModError.text = warning
 
@@ -218,7 +218,7 @@ func toggle_mods(button_pressed: bool) -> void:
 		
 		DirAccess.remove_absolute(game_metadata.game_path.path_join(Registry.GameData.mod_loader_scene))
 
-func apply_mods():
+func apply_mods() -> void:
 	var override_file := get_override_path()
 	var config := ConfigFile.new()
 	if FileAccess.file_exists(override_file):
@@ -232,15 +232,15 @@ func apply_mods():
 	
 	DirAccess.copy_absolute("res://System/%s/%s" % [game_data.godot_version, Registry.GameData.mod_loader_scene], game_metadata.game_path.path_join(Registry.GameData.mod_loader_scene))
 	config.set_value("gumm", "main_scene", game_data.main_scene)
-	config.set_value("gumm", "mod_list", game_metadata.installed_mods.filter(func(mod): return mod.active).map(func(mod): return mod.load_path))
+	config.set_value("gumm", "mod_list", game_metadata.installed_mods.filter(func(mod: Registry.GameData.ModData) -> bool: return mod.active).map(func(mod: Registry.GameData.ModData) -> String: return mod.load_path))
 	
 	config.save(override_file)
 
-func edit_mod(entry):
+func edit_mod(entry: Control) -> void:
 	entry_to_update = entry
 	begin_edit_mod()
 
-func remove_mod(entry, confirmed := false):
+func remove_mod(entry: Control, confirmed := false) -> void:
 	if confirmed:
 		entry = entry_to_delete
 		entry.missing = true
@@ -254,7 +254,7 @@ func remove_mod(entry, confirmed := false):
 		$DeleteConfirm.reset_size()
 		$DeleteConfirm.popup_centered()
 
-func refresh_entry(old_entry: Control):
+func refresh_entry(old_entry: Control) -> void:
 	var new_entry := add_mod_entry(old_entry.metadata)
 	new_entry.get_parent().move_child(new_entry, old_entry.get_index())
 	old_entry.queue_free()

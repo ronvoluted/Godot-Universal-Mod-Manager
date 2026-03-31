@@ -5,7 +5,7 @@ extends GutTest
 
 # -- Typed iteration over typed arrays --
 
-func test_typed_for_over_int_array():
+func test_typed_for_over_int_array() -> void:
 	var numbers: Array[int] = [1, 2, 3]
 	var sum := 0
 	for n: int in numbers:
@@ -13,7 +13,7 @@ func test_typed_for_over_int_array():
 	assert_eq(sum, 6)
 
 
-func test_typed_for_over_string_array():
+func test_typed_for_over_string_array() -> void:
 	var words: Array[String] = ["hello", "world"]
 	var result := ""
 	for word: String in words:
@@ -23,7 +23,7 @@ func test_typed_for_over_string_array():
 
 # -- Typed iteration over range --
 
-func test_typed_for_over_int_range():
+func test_typed_for_over_int_range() -> void:
 	var sum := 0
 	for i: int in 5:
 		sum += i
@@ -32,7 +32,7 @@ func test_typed_for_over_int_range():
 
 # -- Typed iteration over untyped array --
 
-func test_typed_for_over_untyped_array():
+func test_typed_for_over_untyped_array() -> void:
 	var items: Array = [{"a": 1}, {"b": 2}]
 	var count := 0
 	for item: Variant in items:
@@ -40,7 +40,7 @@ func test_typed_for_over_untyped_array():
 	assert_eq(count, 2)
 
 
-func test_dictionary_for_type_hint():
+func test_dictionary_for_type_hint() -> void:
 	var data: Array = [{entry_path = "/a"}, {entry_path = "/b"}]
 	var paths: Array[String] = []
 	for entry: Dictionary in data:
@@ -50,7 +50,7 @@ func test_dictionary_for_type_hint():
 
 # -- Typed iteration over project types --
 
-func test_typed_for_over_game_data_array():
+func test_typed_for_over_game_data_array() -> void:
 	var games: Array[Registry.GameData] = []
 	games.append(Registry.GameData.new({entry_path = "/path/a", game_path = "/game/a", installed_mods = []}))
 	games.append(Registry.GameData.new({entry_path = "/path/b", game_path = "/game/b", installed_mods = []}))
@@ -61,7 +61,7 @@ func test_typed_for_over_game_data_array():
 	assert_eq(paths, ["/path/a", "/path/b"])
 
 
-func test_typed_for_over_mod_data_array():
+func test_typed_for_over_mod_data_array() -> void:
 	var mods: Array[Registry.GameData.ModData] = []
 	mods.append(Registry.GameData.ModData.new({load_path = "/mods/a", active = true}))
 	mods.append(Registry.GameData.ModData.new({load_path = "/mods/b", active = false}))
@@ -74,7 +74,7 @@ func test_typed_for_over_mod_data_array():
 
 # -- Typed iteration over Node children (Array[Node]) --
 
-func test_typed_for_over_node_children():
+func test_typed_for_over_node_children() -> void:
 	var parent := Node.new()
 	parent.add_child(Node.new())
 	parent.add_child(Node.new())
@@ -89,7 +89,7 @@ func test_typed_for_over_node_children():
 
 # -- Typed iteration over PackedStringArray --
 
-func test_typed_for_over_packed_string_array():
+func test_typed_for_over_packed_string_array() -> void:
 	var arr: PackedStringArray = ["a.txt", "b.txt", "c.txt"]
 	var result: Array[String] = []
 	for file: String in arr:

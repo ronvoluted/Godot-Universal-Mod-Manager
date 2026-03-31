@@ -3,26 +3,26 @@ extends GutTest
 var descriptor: ModDescriptor
 
 
-func before_each():
+func before_each() -> void:
 	descriptor = ModDescriptor.new()
 
 
-func test_static_config_file():
+func test_static_config_file() -> void:
 	assert_eq(ModDescriptor.config_file, "mod.cfg")
 
 
-func test_static_section():
+func test_static_section() -> void:
 	assert_eq(ModDescriptor.section, "Godot Mod")
 
 
-func test_initial_properties_are_empty():
+func test_initial_properties_are_empty() -> void:
 	assert_eq(descriptor.game, "")
 	assert_eq(descriptor.name, "")
 	assert_eq(descriptor.description, "")
 	assert_eq(descriptor.version, "")
 
 
-func test_save_and_load_roundtrip():
+func test_save_and_load_roundtrip() -> void:
 	var tmp_dir := "user://test_mod_descriptor"
 	DirAccess.make_dir_recursive_absolute(tmp_dir)
 
@@ -45,6 +45,6 @@ func test_save_and_load_roundtrip():
 	DirAccess.remove_absolute(tmp_dir)
 
 
-func test_load_returns_false_for_missing_file():
+func test_load_returns_false_for_missing_file() -> void:
 	var result := descriptor.load_data("user://nonexistent_path")
 	assert_false(result)

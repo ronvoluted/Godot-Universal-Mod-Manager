@@ -5,11 +5,11 @@ extends GutTest
 var tmp_dir := "user://test_configfile_key_quoting"
 
 
-func before_each():
+func before_each() -> void:
 	DirAccess.make_dir_recursive_absolute(tmp_dir)
 
 
-func after_each():
+func after_each() -> void:
 	var dir := DirAccess.open(tmp_dir)
 	if dir:
 		for file: String in dir.get_files():
@@ -19,7 +19,7 @@ func after_each():
 
 # -- override.cfg: slash in key (run/main_scene) --
 
-func test_override_cfg_slash_key_roundtrip():
+func test_override_cfg_slash_key_roundtrip() -> void:
 	var path := tmp_dir.path_join("override.cfg")
 	var cfg := ConfigFile.new()
 	cfg.set_value("application", "run/main_scene", "res://GUMM_Loader.tscn")
@@ -30,7 +30,7 @@ func test_override_cfg_slash_key_roundtrip():
 	assert_eq(loaded.get_value("application", "run/main_scene"), "res://GUMM_Loader.tscn")
 
 
-func test_override_cfg_gumm_section_with_slash_key():
+func test_override_cfg_gumm_section_with_slash_key() -> void:
 	var path := tmp_dir.path_join("override.cfg")
 	var cfg := ConfigFile.new()
 	cfg.set_value("application", "run/main_scene", "res://GUMM_Loader.tscn")
@@ -45,7 +45,7 @@ func test_override_cfg_gumm_section_with_slash_key():
 	assert_eq(loaded.get_value("gumm", "mod_list"), PackedStringArray(["mod_a", "mod_b"]))
 
 
-func test_override_cfg_erase_slash_key():
+func test_override_cfg_erase_slash_key() -> void:
 	var path := tmp_dir.path_join("override.cfg")
 	var cfg := ConfigFile.new()
 	cfg.set_value("application", "run/main_scene", "res://GUMM_Loader.tscn")
@@ -63,7 +63,7 @@ func test_override_cfg_erase_slash_key():
 
 # -- game.cfg: section name with space ("Godot Game") --
 
-func test_game_cfg_section_with_space():
+func test_game_cfg_section_with_space() -> void:
 	var path := tmp_dir.path_join("game.cfg")
 	var cfg := ConfigFile.new()
 	cfg.set_value("Godot Game", "title", "Test Game")
@@ -80,7 +80,7 @@ func test_game_cfg_section_with_space():
 
 # -- mod.cfg: section name with space ("Godot Mod") --
 
-func test_mod_cfg_section_with_space():
+func test_mod_cfg_section_with_space() -> void:
 	var path := tmp_dir.path_join("mod.cfg")
 	var cfg := ConfigFile.new()
 	cfg.set_value("Godot Mod", "game", "Test Game")
@@ -97,7 +97,7 @@ func test_mod_cfg_section_with_space():
 
 # -- Keys with special characters --
 
-func test_key_with_spaces():
+func test_key_with_spaces() -> void:
 	var path := tmp_dir.path_join("special.cfg")
 	var cfg := ConfigFile.new()
 	cfg.set_value("section", "key with spaces", "value")
@@ -108,7 +108,7 @@ func test_key_with_spaces():
 	assert_eq(loaded.get_value("section", "key with spaces"), "value")
 
 
-func test_key_with_dots():
+func test_key_with_dots() -> void:
 	var path := tmp_dir.path_join("special.cfg")
 	var cfg := ConfigFile.new()
 	cfg.set_value("section", "network.server.port", 8080)
@@ -119,7 +119,7 @@ func test_key_with_dots():
 	assert_eq(loaded.get_value("section", "network.server.port"), 8080)
 
 
-func test_key_with_equals():
+func test_key_with_equals() -> void:
 	var path := tmp_dir.path_join("special.cfg")
 	var cfg := ConfigFile.new()
 	cfg.set_value("section", "key=value", "data")
@@ -130,7 +130,7 @@ func test_key_with_equals():
 	assert_eq(loaded.get_value("section", "key=value"), "data")
 
 
-func test_key_with_unicode():
+func test_key_with_unicode() -> void:
 	var path := tmp_dir.path_join("special.cfg")
 	var cfg := ConfigFile.new()
 	cfg.set_value("section", "日本語キー", "value")
@@ -141,7 +141,7 @@ func test_key_with_unicode():
 	assert_eq(loaded.get_value("section", "日本語キー"), "value")
 
 
-func test_key_with_brackets():
+func test_key_with_brackets() -> void:
 	var path := tmp_dir.path_join("special.cfg")
 	var cfg := ConfigFile.new()
 	cfg.set_value("section", "key[0]", "first")
@@ -152,7 +152,7 @@ func test_key_with_brackets():
 	assert_eq(loaded.get_value("section", "key[0]"), "first")
 
 
-func test_value_with_special_characters():
+func test_value_with_special_characters() -> void:
 	var path := tmp_dir.path_join("special.cfg")
 	var cfg := ConfigFile.new()
 	cfg.set_value("Godot Mod", "description", 'Replaces "all" enemies & adds new boss [v2]')
@@ -165,7 +165,7 @@ func test_value_with_special_characters():
 
 # -- Mixed special characters in a single file --
 
-func test_mixed_special_keys_in_single_file():
+func test_mixed_special_keys_in_single_file() -> void:
 	var path := tmp_dir.path_join("mixed.cfg")
 	var cfg := ConfigFile.new()
 	cfg.set_value("application", "run/main_scene", "res://Main.tscn")
@@ -184,7 +184,7 @@ func test_mixed_special_keys_in_single_file():
 
 # -- Descriptor roundtrips with special character values --
 
-func test_game_descriptor_special_title():
+func test_game_descriptor_special_title() -> void:
 	var descriptor := GameDescriptor.new()
 	descriptor.title = 'Game "Deluxe" [2024]'
 	descriptor.godot_version = "4.x"
@@ -197,7 +197,7 @@ func test_game_descriptor_special_title():
 	assert_eq(loaded.main_scene, "res://Scenes/Main Scene.tscn")
 
 
-func test_mod_descriptor_special_values():
+func test_mod_descriptor_special_values() -> void:
 	var descriptor := ModDescriptor.new()
 	descriptor.game = 'Game "Deluxe" [2024]'
 	descriptor.name = "Über Mod/Patch"

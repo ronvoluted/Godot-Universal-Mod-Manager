@@ -25,19 +25,19 @@ func _ready() -> void:
 		file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_DIR
 		file_dialog.dir_selected.connect(dialog_select)
 	elif mode == 1:
-		file_dialog.filters = Array(Registry.ICON_FORMATS).map(func(ext: String): return "*." + ext)
+		file_dialog.filters = Array(Registry.ICON_FORMATS).map(func(ext: String) -> String: return "*." + ext)
 		file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 		file_dialog.file_selected.connect(dialog_select)
 
-func line_edit_text_changed():
+func line_edit_text_changed() -> void:
 	text_changed.emit()
 
 func browse() -> void:
 	file_dialog.popup_centered_ratio(0.4)
 
-func dialog_select(path: String):
+func dialog_select(path: String) -> void:
 	line_edit.text = path
 	text_changed.emit()
 
-func clear():
+func clear() -> void:
 	line_edit.clear()

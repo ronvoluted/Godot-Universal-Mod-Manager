@@ -8,7 +8,7 @@ var metadata: Registry.GameData
 var missing: bool
 var has_icon: bool
 
-func set_game(meta: Registry.GameData):
+func set_game(meta: Registry.GameData) -> void:
 	metadata = meta
 	
 	entry = GameDescriptor.new()
@@ -31,7 +31,7 @@ func set_game(meta: Registry.GameData):
 	
 	%Installed.text %= metadata.installed_mods.size()
 	if metadata.mods_enabled:
-		%Active.text %= metadata.installed_mods.filter(func(mod): return mod.active).size()
+		%Active.text %= metadata.installed_mods.filter(func(mod: Registry.GameData.ModData) -> bool: return mod.active).size()
 	else:
 		%Active.text %= 0
 	
@@ -55,6 +55,6 @@ func try_recover(dir: String) -> void:
 	
 	owner.refresh_entry(self)
 
-func shoot_error(error: String):
+func shoot_error(error: String) -> void:
 	$AcceptDialog.dialog_text = error
 	$AcceptDialog.popup_centered()

@@ -6,21 +6,21 @@ extends GutTest
 
 # -- ResourceLoader threaded API availability --
 
-func test_load_threaded_request_exists():
+func test_load_threaded_request_exists() -> void:
 	assert_true(ResourceLoader.has_method("load_threaded_request"))
 
 
-func test_load_threaded_get_status_exists():
+func test_load_threaded_get_status_exists() -> void:
 	assert_true(ResourceLoader.has_method("load_threaded_get_status"))
 
 
-func test_load_threaded_get_exists():
+func test_load_threaded_get_exists() -> void:
 	assert_true(ResourceLoader.has_method("load_threaded_get"))
 
 
 # -- Thread load status enum values --
 
-func test_thread_load_status_enum_values():
+func test_thread_load_status_enum_values() -> void:
 	# Verify enum constants exist and are distinct
 	assert_ne(ResourceLoader.THREAD_LOAD_IN_PROGRESS, ResourceLoader.THREAD_LOAD_LOADED)
 	assert_ne(ResourceLoader.THREAD_LOAD_LOADED, ResourceLoader.THREAD_LOAD_FAILED)
@@ -29,13 +29,13 @@ func test_thread_load_status_enum_values():
 
 # -- Threaded loading of a known resource --
 
-func test_load_threaded_request_for_existing_resource():
+func test_load_threaded_request_for_existing_resource() -> void:
 	var path := "res://Nodes/GameEntry.tscn"
 	var err := ResourceLoader.load_threaded_request(path)
 	assert_eq(err, OK, "load_threaded_request should return OK for a valid path")
 
 
-func test_load_threaded_get_status_returns_valid_status():
+func test_load_threaded_get_status_returns_valid_status() -> void:
 	var path := "res://Nodes/ModEntry.tscn"
 	ResourceLoader.load_threaded_request(path)
 
@@ -48,7 +48,7 @@ func test_load_threaded_get_status_returns_valid_status():
 	)
 
 
-func test_load_threaded_get_returns_resource():
+func test_load_threaded_get_returns_resource() -> void:
 	var path := "res://Nodes/GameEntry.tscn"
 	ResourceLoader.load_threaded_request(path)
 
@@ -70,14 +70,14 @@ func test_load_threaded_get_returns_resource():
 
 # -- GUMM_mod.gd load_resource_threaded method --
 
-func test_gumm_mod_has_load_resource_threaded():
+func test_gumm_mod_has_load_resource_threaded() -> void:
 	var mod_script: GDScript = load("res://System/4.x/GUMM_mod.gd")
 	var mod := mod_script.new() as RefCounted
 	assert_true(mod.has_method("load_resource_threaded"),
 		"GUMM_mod should expose load_resource_threaded()")
 
 
-func test_gumm_mod_load_resource_still_has_sync_method():
+func test_gumm_mod_load_resource_still_has_sync_method() -> void:
 	var mod_script: GDScript = load("res://System/4.x/GUMM_mod.gd")
 	var mod := mod_script.new() as RefCounted
 	assert_true(mod.has_method("load_resource"),
@@ -86,12 +86,12 @@ func test_gumm_mod_load_resource_still_has_sync_method():
 
 # -- Mod loader scene structure --
 
-func test_mod_loader_scene_loads():
+func test_mod_loader_scene_loads() -> void:
 	var scene := load("res://System/4.x/GUMM_mod_loader.tscn") as PackedScene
 	assert_not_null(scene, "Mod loader scene should load successfully")
 
 
-func test_mod_loader_script_has_threaded_methods():
+func test_mod_loader_script_has_threaded_methods() -> void:
 	var scene := load("res://System/4.x/GUMM_mod_loader.tscn") as PackedScene
 	var node := scene.instantiate()
 	# Verify the mod loader node has the threaded loading helper and load_mod
@@ -109,7 +109,7 @@ func test_mod_loader_script_has_threaded_methods():
 
 # -- Threaded load produces same result as sync load --
 
-func test_threaded_load_matches_sync_load():
+func test_threaded_load_matches_sync_load() -> void:
 	var path := "res://Nodes/GameEntry.tscn"
 
 	# Sync load

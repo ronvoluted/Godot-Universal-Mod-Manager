@@ -22,7 +22,7 @@ func load_data(path: String) -> bool:
 
 	return true
 
-func save_data(path: String):
+func save_data(path: String) -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value(section, "game", game)
 	cfg.set_value(section, "name", name)

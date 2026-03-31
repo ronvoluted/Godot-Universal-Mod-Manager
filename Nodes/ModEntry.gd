@@ -6,7 +6,7 @@ var metadata: Registry.GameData.ModData
 var missing: bool
 var has_icon: bool
 
-func set_mod(meta: Registry.GameData.ModData):
+func set_mod(meta: Registry.GameData.ModData) -> void:
 	metadata = meta
 	
 	entry = ModDescriptor.new()
@@ -55,6 +55,6 @@ func try_recover(dir: String) -> void:
 	
 	owner.refresh_entry(self)
 
-func shoot_error(error: String):
+func shoot_error(error: String) -> void:
 	$AcceptDialog.dialog_text = error
 	$AcceptDialog.popup_centered()
