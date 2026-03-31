@@ -23,7 +23,7 @@ Registry="*res://Data/Registry.gd"
 [debug]
 
 gdscript/warnings/untyped_declaration=1
-gdscript/warnings/directory_rules={"res://addons/": {"untyped_declaration": 0, "unassigned_variable": 0, "unassigned_variable_op_assign": 0, "unused_variable": 0, "unused_local_constant": 0, "unused_private_class_variable": 0, "unused_parameter": 0, "unused_signal": 0, "integer_division": 0, "confusable_identifier": 0}}
+gdscript/warnings/directory_rules={"res://addons/": {"untyped_declaration": 0, "unassigned_variable": 0, "unassigned_variable_op_assign": 0, "unused_variable": 0, "unused_local_constant": 0, "unused_private_class_variable": 0, "unused_parameter": 0, "unused_signal": 0, "integer_division": 0, "confusable_identifier": 0}, "res://System/2.x/": {"untyped_declaration": 0, "unassigned_variable": 0, "unused_parameter": 0}, "res://System/3.x/": {"untyped_declaration": 0, "unassigned_variable": 0, "unused_parameter": 0}, "res://Examples/": {"untyped_declaration": 0, "unassigned_variable": 0, "unused_parameter": 0}}
 
 [display]
 

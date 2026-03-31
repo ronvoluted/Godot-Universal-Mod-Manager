@@ -8,7 +8,7 @@ extends GutTest
 
 func test_round_trip_empty_array() -> void:
 	var original: Array = []
-	var result = str_to_var(var_to_str(original))
+	var result: Variant = str_to_var(var_to_str(original))
 	assert_eq(result, [])
 	assert_true(result is Array)
 
@@ -18,7 +18,7 @@ func test_round_trip_array_of_dictionaries() -> void:
 		{entry_path = "/path/a", game_path = "/game/a", installed_mods = []},
 		{entry_path = "/path/b", game_path = "/game/b", installed_mods = []},
 	]
-	var result = str_to_var(var_to_str(original))
+	var result: Variant = str_to_var(var_to_str(original))
 	assert_eq(result.size(), 2)
 	assert_eq(result[0]["entry_path"], "/path/a")
 	assert_eq(result[1]["game_path"], "/game/b")
@@ -34,7 +34,7 @@ func test_round_trip_nested_mod_dictionaries() -> void:
 			{load_path = "/mods/y", active = false},
 		],
 	}]
-	var result = str_to_var(var_to_str(original))
+	var result: Variant = str_to_var(var_to_str(original))
 	assert_eq(result[0]["installed_mods"].size(), 2)
 	assert_eq(result[0]["installed_mods"][0]["load_path"], "/mods/x")
 	assert_true(result[0]["installed_mods"][0]["active"])
@@ -46,7 +46,7 @@ func test_round_trip_nested_mod_dictionaries() -> void:
 func test_pre_43_empty_game_list_loads() -> void:
 	# Pre-4.3 var_to_str output for an empty array
 	var saved := "[  ]"
-	var result = str_to_var(saved)
+	var result: Variant = str_to_var(saved)
 	assert_not_null(result, "str_to_var should parse pre-4.3 empty array")
 	assert_eq(result, [])
 
@@ -54,7 +54,7 @@ func test_pre_43_empty_game_list_loads() -> void:
 func test_pre_43_single_game_loads() -> void:
 	# Simulates a game_list.txt written by a pre-4.3 Godot engine
 	var saved := '[{\n"entry_path": "/games/rpg",\n"game_path": "/usr/games/rpg",\n"installed_mods": [  ],\n"mods_enabled": false\n}]'
-	var result = str_to_var(saved)
+	var result: Variant = str_to_var(saved)
 	assert_not_null(result, "str_to_var should parse pre-4.3 single game entry")
 	assert_eq(result.size(), 1)
 	assert_eq(result[0]["entry_path"], "/games/rpg")
@@ -64,7 +64,7 @@ func test_pre_43_single_game_loads() -> void:
 
 func test_pre_43_game_with_mods_loads() -> void:
 	var saved := '[{\n"entry_path": "/games/rpg",\n"game_path": "/usr/games/rpg",\n"installed_mods": [{\n"load_path": "/mods/ui_fix",\n"active": true\n}, {\n"load_path": "/mods/retexture",\n"active": false\n}],\n"mods_enabled": true\n}]'
-	var result = str_to_var(saved)
+	var result: Variant = str_to_var(saved)
 	assert_not_null(result, "str_to_var should parse pre-4.3 game with mods")
 	assert_eq(result[0]["installed_mods"].size(), 2)
 	assert_eq(result[0]["installed_mods"][0]["load_path"], "/mods/ui_fix")
@@ -113,7 +113,7 @@ func test_multi_game_round_trip() -> void:
 		Registry.GameData.new({entry_path = "/game2", game_path = "/gp2", installed_mods = [{load_path = "/mod", active = true}]}),
 		Registry.GameData.new({entry_path = "/game3", game_path = "/gp3", installed_mods = []}),
 	]
-	var game_list := games.map(func(game: Registry.GameData) -> Dictionary: return game.get_var())
+	var game_list := games.map(func(game: Registry.GameData) -> Dictionary[StringName, Variant]: return game.get_var())
 	var serialized := var_to_str(game_list)
 	var deserialized: Array = str_to_var(serialized)
 	var restored: Array[Registry.GameData] = []
@@ -159,25 +159,25 @@ func test_file_round_trip() -> void:
 
 func test_bool_values_preserved() -> void:
 	var original := [{active = true}, {active = false}]
-	var result = str_to_var(var_to_str(original))
+	var result: Variant = str_to_var(var_to_str(original))
 	assert_true(result[0]["active"])
 	assert_false(result[1]["active"])
 
 
 func test_empty_string_values_preserved() -> void:
 	var original := [{entry_path = "", game_path = ""}]
-	var result = str_to_var(var_to_str(original))
+	var result: Variant = str_to_var(var_to_str(original))
 	assert_eq(result[0]["entry_path"], "")
 	assert_eq(result[0]["game_path"], "")
 
 
 func test_paths_with_special_characters() -> void:
 	var original := [{entry_path = "/path/with spaces/game", game_path = "C:\\Users\\test\\games"}]
-	var result = str_to_var(var_to_str(original))
+	var result: Variant = str_to_var(var_to_str(original))
 	assert_eq(result[0]["entry_path"], "/path/with spaces/game")
 	assert_eq(result[0]["game_path"], "C:\\Users\\test\\games")
 
 
 func test_str_to_var_returns_null_for_invalid_input() -> void:
-	var result = str_to_var("not valid var_to_str output {{{")
+	var result: Variant = str_to_var("not valid var_to_str output {{{")
 	assert_null(result, "str_to_var should return null for malformed input")
