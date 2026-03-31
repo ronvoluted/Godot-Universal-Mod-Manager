@@ -32,6 +32,7 @@ gdscript/warnings/unused_signal=0
 gdscript/warnings/integer_division=0
 gdscript/warnings/confusable_identifier=0
 gdscript/warnings/untyped_declaration=1
+gdscript/warnings/directory_rules={"res://addons/": {"untyped_declaration": 0}}
 
 [display]
 
