@@ -27,10 +27,10 @@ func on_add_game_entry() -> void:
 	$AddGame.popup_centered()
 
 func validate_add() -> void:
-	if %ImportPath.text.is_empty():
+	if %ImportPath.text.strip_edges().is_empty():
 		set_add_error("Descriptor path can't be empty.")
 		return
-	
+
 	var descriptor_path: String = %ImportPath.text.path_join(GameDescriptor.config_file)
 	if not FileAccess.file_exists(descriptor_path):
 		set_add_error("Descriptor directory invalid. Missing \"%s\"." % GameDescriptor.config_file)
@@ -39,21 +39,27 @@ func validate_add() -> void:
 	if FileAccess.get_size(descriptor_path) == 0:
 		set_add_error("\"%s\" is empty." % GameDescriptor.config_file)
 		return
-	
+
 	var data := GameDescriptor.new()
-	data.load_data(%ImportPath.text)
+	if not data.load_data(%ImportPath.text):
+		set_add_error("\"%s\" is malformed or unreadable." % GameDescriptor.config_file)
+		return
 	if %GameList.get_children().find_custom(func(game: Node) -> bool: return game.entry.title == data.title) != -1:
 		set_add_error("Game already on the list. Delete it first.")
 		return
-	
-	if %ImportGame.text.is_empty():
+
+	if %ImportGame.text.strip_edges().is_empty():
 		set_add_error("Game directory name can't be empty.")
 		return
-	
+
+	if not DirAccess.dir_exists_absolute(%ImportGame.text):
+		set_add_error("The provided game directory does not exist.")
+		return
+
 	if DirAccess.get_files_at(%ImportGame.text).is_empty():
 		set_add_error("The provided directory does not contain any files.")
 		return
-	
+
 	set_add_error("")
 
 func set_add_error(error: String) -> void:
@@ -98,39 +104,43 @@ func on_create_game_entry() -> void:
 	$CreateGame.popup_centered()
 
 func validate_create() -> void:
-	if %CreateTitle.text.is_empty():
+	if %CreateTitle.text.strip_edges().is_empty():
 		set_create_error("Title can't be empty.")
 		return
-	
+
 	if %GameList.get_children().find_custom(func(game: Node) -> bool: return game.entry.title == %CreateTitle.text) != -1:
 		set_create_error("Game already on the list.")
 		return
-	
-	if not %CreateIcon.text.is_empty():
+
+	if not %CreateIcon.text.strip_edges().is_empty():
 		if not %CreateIcon.text.has_extension(Registry.ICON_FORMATS):
 			set_create_error("Icon format invalid. Supported extensions: %s" % ", ".join(Registry.ICON_FORMATS))
 			return
-		
+
 		if not FileAccess.file_exists(%CreateIcon.text):
 			set_create_error("Icon file does not exist.")
 			return
-	
-	if %CreateScene.text.is_empty():
+
+	if %CreateScene.text.strip_edges().is_empty():
 		set_create_error("Scene can't be empty.")
 		return
-	
+
 	if not %CreateScene.text.begins_with("res://") or not %CreateScene.text.has_extension(["tscn", "scn"]):
 		set_create_error("Scene path needs to point to a scn/tscn file inside res://.")
 		return
-	
-	if %CreateDirectory.text.is_empty():
+
+	if %CreateDirectory.text.strip_edges().is_empty():
 		set_create_error("Game directory name can't be empty.")
 		return
-	
+
+	if not DirAccess.dir_exists_absolute(%CreateDirectory.text):
+		set_create_error("The provided game directory does not exist.")
+		return
+
 	if DirAccess.get_files_at(%CreateDirectory.text).is_empty():
 		set_create_error("The provided directory does not contain any files.")
 		return
-	
+
 	set_create_error("")
 
 func set_create_error(error: String) -> void:

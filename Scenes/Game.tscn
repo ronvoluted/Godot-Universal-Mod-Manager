@@ -275,5 +275,6 @@ text = "← Back to Game List"
 [connection signal="text_changed" from="NewModDialog/VBoxContainer/GridContainer/NewModPath" to="." method="validate_new_mod"]
 [connection signal="text_changed" from="NewModDialog/VBoxContainer/GridContainer/IconPath" to="." method="validate_new_mod"]
 [connection signal="text_changed" from="NewModDialog/VBoxContainer/GridContainer/NewModName" to="." method="validate_new_mod" unbinds=1]
+[connection signal="text_changed" from="NewModDialog/VBoxContainer/GridContainer/NewModVersion" to="." method="validate_new_mod" unbinds=1]
 [connection signal="confirmed" from="DeleteConfirm" to="." method="remove_mod" binds= [true, true]]
 [connection signal="pressed" from="Button" to="." method="go_back"]

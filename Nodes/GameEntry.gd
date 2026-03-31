@@ -41,14 +41,14 @@ func set_game(meta: GameData) -> void:
 	%OpenFolder.pressed.connect(OS.shell_open.bind(ProjectSettings.globalize_path(metadata.entry_path)))
 
 func try_recover(dir: String) -> void:
-	if dir.is_empty():
+	if dir.strip_edges().is_empty():
 		shoot_error.call_deferred("Path can't be empty.")
 		return
-	
+
 	if not DirAccess.dir_exists_absolute(dir):
 		shoot_error.call_deferred("The provided directory does not exist.")
 		return
-	
+
 	if not FileAccess.file_exists(dir.path_join(GameDescriptor.config_file)):
 		shoot_error.call_deferred("No \"%s\" found at the given location." % GameDescriptor.config_file)
 		return
@@ -56,7 +56,12 @@ func try_recover(dir: String) -> void:
 	if FileAccess.get_size(dir.path_join(GameDescriptor.config_file)) == 0:
 		shoot_error.call_deferred("\"%s\" is empty." % GameDescriptor.config_file)
 		return
-	
+
+	var data := GameDescriptor.new()
+	if not data.load_data(dir):
+		shoot_error.call_deferred("\"%s\" is malformed or unreadable." % GameDescriptor.config_file)
+		return
+
 	metadata.entry_path = dir
 	Registry.save_game_entry_list()
 

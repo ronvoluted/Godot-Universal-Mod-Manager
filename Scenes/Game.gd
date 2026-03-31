@@ -52,8 +52,9 @@ func import_mod_update() -> void:
 	%ImportModName.text = ""
 	%ImportModDescription.text = ""
 	%ImportModVersion.text = ""
+	entry_to_update = null
 
-	if %ImportModPath.text.is_empty():
+	if %ImportModPath.text.strip_edges().is_empty():
 		set_import_error("Path can't be empty.")
 		return
 
@@ -71,7 +72,9 @@ func import_mod_update() -> void:
 		return
 
 	var mod_data := ModDescriptor.new()
-	mod_data.load_data(%ImportModPath.text)
+	if not mod_data.load_data(%ImportModPath.text):
+		set_import_error("\"%s\" is malformed or unreadable." % ModDescriptor.config_file)
+		return
 
 	if mod_data.game != game_data.title:
 		set_import_error("Mod isn't made for \"%s\"." % game_data.title)
@@ -209,7 +212,7 @@ func set_import_warning(warning: String) -> void:
 	%ImportError.text = warning
 
 func validate_new_mod() -> void:
-	if %NewModPath.text.is_empty():
+	if %NewModPath.text.strip_edges().is_empty():
 		set_create_error("Path can't be empty.")
 		return
 
@@ -221,13 +224,13 @@ func validate_new_mod() -> void:
 		set_create_error("The selected directory must not contain any files.")
 		return
 
-	if %NewModName.text.is_empty():
+	if %NewModName.text.strip_edges().is_empty():
 		set_create_error("Mod name can't be empty.")
 		return
 
 	set_create_error("")
 
-	if not %IconPath.disabled and (%IconPath.text.is_empty() or not FileAccess.file_exists(%IconPath.text) or not %IconPath.text.has_extension(Registry.ICON_FORMATS)):
+	if not %IconPath.disabled and not %IconPath.text.strip_edges().is_empty() and (not FileAccess.file_exists(%IconPath.text) or not %IconPath.text.has_extension(Registry.ICON_FORMATS)):
 		set_create_warning("Icon path invalid. The mod will have no icon.")
 
 func set_create_error(error: String) -> void:
