@@ -23,8 +23,7 @@ func test_initial_properties_are_empty() -> void:
 
 
 func test_save_and_load_roundtrip() -> void:
-	var tmp_dir := "user://test_mod_descriptor"
-	DirAccess.make_dir_recursive_absolute(tmp_dir)
+	var tmp_dir := DirAccess.create_temp("test_mod_descriptor")
 
 	descriptor.game = "Test Game"
 	descriptor.name = "Cool Mod"

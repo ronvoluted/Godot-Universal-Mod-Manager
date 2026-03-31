@@ -22,8 +22,7 @@ func test_initial_properties_are_empty() -> void:
 
 
 func test_save_and_load_roundtrip() -> void:
-	var tmp_dir := "user://test_game_descriptor"
-	DirAccess.make_dir_recursive_absolute(tmp_dir)
+	var tmp_dir := DirAccess.create_temp("test_game_descriptor")
 
 	descriptor.title = "Test Game"
 	descriptor.godot_version = "4.3"
