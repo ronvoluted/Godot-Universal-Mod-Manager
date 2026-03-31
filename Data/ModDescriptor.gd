@@ -18,7 +18,11 @@ func load_data(path: String) -> bool:
 	game = cfg.get_value(section, "game")
 	name = cfg.get_value(section, "name")
 	description = cfg.get_value(section, "description")
-	version = cfg.get_value(section, "version")
+	var raw_version: Variant = cfg.get_value(section, "version")
+	if raw_version is float and raw_version == int(raw_version):
+		version = str(int(raw_version))
+	else:
+		version = str(raw_version)
 
 	return true
 

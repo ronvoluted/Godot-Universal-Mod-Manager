@@ -118,9 +118,9 @@ func get_export_preset_version() -> String:
 		for key in config.get_section_keys(section):
 			for check_key in version_keys:
 				if key.ends_with(check_key):
-					var version: String =  str(config.get_value(section, key))
+					var version: String = _numeric_to_string(config.get_value(section, key))
 					if version.is_empty():
-						continue 
+						continue
 					return version
 	
 	push_error("Failed to fetch version. No valid version key found in export profiles.")
@@ -141,7 +141,7 @@ func get_export_preset_android_version_name() -> String:
 	for section in config.get_sections():
 		if not section.ends_with(".options"):
 			continue
-		version_name = str(config.get_value(section, "version/name", ""))
+		version_name = _numeric_to_string(config.get_value(section, "version/name", ""))
 		if not version_name.is_empty():
 			return version_name
 	
@@ -163,7 +163,7 @@ func get_export_preset_android_version_code() -> String:
 	for section in config.get_sections():
 		if not section.ends_with(".options"):
 			continue
-		version_code = str(config.get_value(section, "version/code", ""))
+		version_code = _numeric_to_string(config.get_value(section, "version/code", ""))
 		if not version_code.is_empty():
 			return version_code
 	
@@ -209,6 +209,14 @@ func store_version_as_project_setting(version: String, persistent := false) -> v
 			"hint_string": "Will overriden on export by AutoExportVersion plugin"
 		})
 
+
+
+## Converts a Variant to String, collapsing whole-number floats to their integer
+## representation so that e.g. 1.0 becomes "1" rather than "1.0" (GH-47502).
+func _numeric_to_string(value: Variant) -> String:
+	if value is float and value == int(value):
+		return str(int(value))
+	return str(value)
 
 
 ####################################################################################################
