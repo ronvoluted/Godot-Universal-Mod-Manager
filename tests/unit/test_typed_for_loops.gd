@@ -51,23 +51,23 @@ func test_dictionary_for_type_hint() -> void:
 # -- Typed iteration over project types --
 
 func test_typed_for_over_game_data_array() -> void:
-	var games: Array[Registry.GameData] = []
-	games.append(Registry.GameData.new({entry_path = "/path/a", game_path = "/game/a", installed_mods = []}))
-	games.append(Registry.GameData.new({entry_path = "/path/b", game_path = "/game/b", installed_mods = []}))
+	var games: Array[GameData] = []
+	games.append(GameData.new({entry_path = "/path/a", game_path = "/game/a", installed_mods = []}))
+	games.append(GameData.new({entry_path = "/path/b", game_path = "/game/b", installed_mods = []}))
 
 	var paths: Array[String] = []
-	for game: Registry.GameData in games:
+	for game: GameData in games:
 		paths.append(game.entry_path)
 	assert_eq(paths, ["/path/a", "/path/b"])
 
 
 func test_typed_for_over_mod_data_array() -> void:
-	var mods: Array[Registry.GameData.ModData] = []
-	mods.append(Registry.GameData.ModData.new({load_path = "/mods/a", active = true}))
-	mods.append(Registry.GameData.ModData.new({load_path = "/mods/b", active = false}))
+	var mods: Array[ModData] = []
+	mods.append(ModData.new({load_path = "/mods/a", active = true}))
+	mods.append(ModData.new({load_path = "/mods/b", active = false}))
 
 	var paths: Array[String] = []
-	for mod: Registry.GameData.ModData in mods:
+	for mod: ModData in mods:
 		paths.append(mod.load_path)
 	assert_eq(paths, ["/mods/a", "/mods/b"])
 

@@ -73,13 +73,13 @@ func test_is_not_respects_inheritance() -> void:
 # -- Project types --
 
 func test_is_not_with_project_class() -> void:
-	var game := Registry.GameData.new({entry_path = "/test", game_path = "/game", installed_mods = []})
-	assert_false(game is not Registry.GameData, "GameData should be GameData")
+	var game := GameData.new({entry_path = "/test", game_path = "/game", installed_mods = []})
+	assert_false(game is not GameData, "GameData should be GameData")
 
 
 func test_is_not_with_nested_project_class() -> void:
-	var mod := Registry.GameData.ModData.new({load_path = "/mod", active = true})
-	assert_false(mod is not Registry.GameData.ModData, "ModData should be ModData")
+	var mod := ModData.new({load_path = "/mod", active = true})
+	assert_false(mod is not ModData, "ModData should be ModData")
 
 
 # -- Equivalence with not (x is Type) --

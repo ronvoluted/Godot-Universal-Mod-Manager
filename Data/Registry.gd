@@ -25,15 +25,15 @@ func add_new_game_entry(entry_path: String, game_path: String) -> GameData:
 	save_game_entry_list()
 	return game
 
-func add_new_mod_entry(game: GameData, load_path: String) -> GameData.ModData:
-	var mod := GameData.ModData.new({load_path = load_path, active = true})
-	
+func add_new_mod_entry(game: GameData, load_path: String) -> ModData:
+	var mod := ModData.new({load_path = load_path, active = true})
+
 	var dir := DirAccess.open(load_path)
-	var existing_index := game.installed_mods.find_custom(func(mod_meta: GameData.ModData) -> bool: return dir and dir.is_equivalent(mod_meta.load_path, load_path))
+	var existing_index := game.installed_mods.find_custom(func(mod_meta: ModData) -> bool: return dir and dir.is_equivalent(mod_meta.load_path, load_path))
 	if existing_index != -1:
 		game.installed_mods[existing_index].load_path = load_path
 		return game.installed_mods[existing_index]
-	
+
 	game.installed_mods.append(mod)
 	save_game_entry_list()
 	return mod
@@ -42,7 +42,7 @@ func remove_game_entry(game: GameData) -> void:
 	games.erase(game)
 	save_game_entry_list()
 
-func remove_mod_entry(game: GameData, mod: GameData.ModData) -> void:
+func remove_mod_entry(game: GameData, mod: ModData) -> void:
 	game.installed_mods.erase(mod)
 	save_game_entry_list()
 
@@ -55,51 +55,3 @@ func smart_resize_to_80(image: Image) -> void:
 		image.resize(roundi(80.0 * image.get_width() / image.get_height()), 80)
 	else:
 		get_tree().quit(1) # impossible
-
-class GameData:
-	static var mod_loader_scene := "GUMM_mod_loader.tscn"
-	static var mod_loader_autoload := "GUMM_mod_loader_autoload.gd"
-
-	class ModData:
-		static var _defaults: Dictionary[StringName, Variant] = {load_path = "", active = false}
-
-		var load_path: String
-		var active: bool
-		var entry: ModDescriptor
-
-		func _init(data: Dictionary) -> void:
-			var config: Dictionary[StringName, Variant] = _defaults.duplicate()
-			config.merge(data, true)
-			load_path = config.load_path
-			active = config.active
-
-			entry = ModDescriptor.new()
-			if not entry.load_data(load_path):
-				active = false
-
-		func get_var() -> Dictionary[StringName, Variant]:
-			return {load_path = load_path, active = active}
-
-	static var _defaults: Dictionary[StringName, Variant] = {entry_path = "", game_path = "", installed_mods = []}
-
-	var entry: GameDescriptor
-	var entry_path: String
-	var game_path: String
-	var mods_enabled: bool
-	var installed_mods: Array[ModData]
-
-	func _init(data: Dictionary) -> void:
-		var config: Dictionary[StringName, Variant] = _defaults.duplicate()
-		config.merge(data, true)
-		entry_path = config.entry_path
-		game_path = config.game_path
-		mods_enabled = FileAccess.file_exists(game_path.path_join(mod_loader_scene)) or FileAccess.file_exists(game_path.path_join(mod_loader_autoload))
-
-		entry = GameDescriptor.new()
-		entry.load_data(entry_path)
-
-		installed_mods.assign(Array(config.installed_mods).map(ModData.new))
-
-	func get_var() -> Dictionary[StringName, Variant]:
-		var mods := installed_mods.map(func(mod: ModData) -> Dictionary[StringName, Variant]: return mod.get_var())
-		return {entry_path = entry_path, game_path = game_path, mods_enabled = mods_enabled, installed_mods = mods}

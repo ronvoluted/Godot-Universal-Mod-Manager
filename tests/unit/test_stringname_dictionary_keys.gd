@@ -47,27 +47,27 @@ func test_dot_access_works_with_stringname_keys() -> void:
 
 
 func test_game_data_get_var_returns_stringname_keys() -> void:
-	var game := Registry.GameData.new({})
+	var game := GameData.new({})
 	var result := game.get_var()
 	for key: Variant in result.keys():
 		assert_typeof(key, TYPE_STRING_NAME)
 
 
 func test_game_data_defaults_use_stringname_keys() -> void:
-	var defaults := Registry.GameData._defaults
+	var defaults := GameData._defaults
 	for key: Variant in defaults.keys():
 		assert_typeof(key, TYPE_STRING_NAME)
 
 
 func test_mod_data_get_var_returns_stringname_keys() -> void:
-	var mod := Registry.GameData.ModData.new({})
+	var mod := ModData.new({})
 	var result := mod.get_var()
 	for key: Variant in result.keys():
 		assert_typeof(key, TYPE_STRING_NAME)
 
 
 func test_mod_data_defaults_use_stringname_keys() -> void:
-	var defaults := Registry.GameData.ModData._defaults
+	var defaults := ModData._defaults
 	for key: Variant in defaults.keys():
 		assert_typeof(key, TYPE_STRING_NAME)
 
@@ -75,12 +75,12 @@ func test_mod_data_defaults_use_stringname_keys() -> void:
 func test_game_data_merge_preserves_string_input_values() -> void:
 	var input: Dictionary = {}
 	input["entry_path"] = "/games/test"
-	var game := Registry.GameData.new(input)
+	var game := GameData.new(input)
 	assert_eq(game.entry_path, "/games/test")
 
 
 func test_mod_data_merge_preserves_string_input_values() -> void:
 	var input: Dictionary = {}
 	input["load_path"] = "/mods/test"
-	var mod := Registry.GameData.ModData.new(input)
+	var mod := ModData.new(input)
 	assert_eq(mod.load_path, "/mods/test")

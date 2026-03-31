@@ -45,7 +45,7 @@ func test_save_game_entry_list_returns_error_type() -> void:
 
 
 func test_save_game_entry_list_returns_ok_with_data() -> void:
-	Registry.games = [Registry.GameData.new({entry_path = "/test", game_path = "/gp", installed_mods = []})]
+	Registry.games = [GameData.new({entry_path = "/test", game_path = "/gp", installed_mods = []})]
 	var err := Registry.save_game_entry_list()
 	assert_eq(err, OK, "save_game_entry_list() should return OK on successful write")
 

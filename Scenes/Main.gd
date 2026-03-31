@@ -7,7 +7,7 @@ var entry_to_delete: Control
 
 func _ready() -> void:
 	get_tree().scene_changed.connect(_on_scene_changed, CONNECT_ONE_SHOT)
-	for game: Registry.GameData in Registry.games:
+	for game: GameData in Registry.games:
 		add_game_entry(game)
 
 func _on_scene_changed(_scene_root: Node) -> void:
@@ -150,7 +150,7 @@ func create_game_entry() -> void:
 
 #region Entry Management
 
-func add_game_entry(game: Registry.GameData) -> Control:
+func add_game_entry(game: GameData) -> Control:
 	var entry: Control = preload("res://Nodes/GameEntry.tscn").instantiate()
 	%GameList.add_child(entry)
 	entry.set_game(game)

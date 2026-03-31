@@ -1,7 +1,7 @@
 extends Control
 
 var game_data: GameDescriptor
-var game_metadata: Registry.GameData
+var game_metadata: GameData
 
 var entry_to_update: Control
 var entry_to_delete: Control
@@ -10,7 +10,7 @@ func _ready() -> void:
 	var entry_path: String = get_tree().get_meta(&"current_game", "")
 
 	var dir := DirAccess.open(entry_path)
-	var game_index := Registry.games.find_custom(func(meta: Registry.GameData) -> bool: return dir and dir.is_equivalent(meta.entry_path, entry_path))
+	var game_index := Registry.games.find_custom(func(meta: GameData) -> bool: return dir and dir.is_equivalent(meta.entry_path, entry_path))
 	game_metadata = Registry.games[game_index]
 
 	game_data = game_metadata.entry
@@ -19,7 +19,7 @@ func _ready() -> void:
 
 func _on_scene_changed(_scene_root: Node) -> void:
 	var new_missing := false
-	for mod: Registry.GameData.ModData in game_metadata.installed_mods:
+	for mod: ModData in game_metadata.installed_mods:
 		add_mod_entry(mod)
 		if not mod.active:
 			new_missing = true
@@ -92,7 +92,7 @@ func import_mod_confirmed() -> void:
 		add_mod_entry(entry)
 	apply_mods()
 
-func add_mod_entry(mod: Registry.GameData.ModData) -> Control:
+func add_mod_entry(mod: ModData) -> Control:
 	var entry: Control = preload("res://Nodes/ModEntry.tscn").instantiate()
 	%ModList.add_child(entry)
 	entry.set_mod(mod)
@@ -273,9 +273,9 @@ func toggle_mods(button_pressed: bool) -> void:
 
 		match game_data.godot_version:
 			"2.x", "3.x":
-				DirAccess.remove_absolute(game_metadata.game_path.path_join(Registry.GameData.mod_loader_scene))
+				DirAccess.remove_absolute(game_metadata.game_path.path_join(GameData.mod_loader_scene))
 			"4.x":
-				DirAccess.remove_absolute(game_metadata.game_path.path_join(Registry.GameData.mod_loader_autoload))
+				DirAccess.remove_absolute(game_metadata.game_path.path_join(GameData.mod_loader_autoload))
 
 func apply_mods() -> void:
 	var override_file := get_override_path()
@@ -285,18 +285,18 @@ func apply_mods() -> void:
 
 	match game_data.godot_version:
 		"2.x":
-			config.set_value("application", "main_scene", "res://" + Registry.GameData.mod_loader_scene)
-			DirAccess.copy_absolute("res://System/2.x/%s" % Registry.GameData.mod_loader_scene, game_metadata.game_path.path_join(Registry.GameData.mod_loader_scene))
+			config.set_value("application", "main_scene", "res://" + GameData.mod_loader_scene)
+			DirAccess.copy_absolute("res://System/2.x/%s" % GameData.mod_loader_scene, game_metadata.game_path.path_join(GameData.mod_loader_scene))
 			config.set_value("gumm", "main_scene", game_data.main_scene)
 		"3.x":
-			config.set_value("application", "run/main_scene", "res://" + Registry.GameData.mod_loader_scene)
-			DirAccess.copy_absolute("res://System/3.x/%s" % Registry.GameData.mod_loader_scene, game_metadata.game_path.path_join(Registry.GameData.mod_loader_scene))
+			config.set_value("application", "run/main_scene", "res://" + GameData.mod_loader_scene)
+			DirAccess.copy_absolute("res://System/3.x/%s" % GameData.mod_loader_scene, game_metadata.game_path.path_join(GameData.mod_loader_scene))
 			config.set_value("gumm", "main_scene", game_data.main_scene)
 		"4.x":
-			DirAccess.copy_absolute("res://System/4.x/" + Registry.GameData.mod_loader_autoload, game_metadata.game_path.path_join(Registry.GameData.mod_loader_autoload))
-			config.set_value("autoload", "GUMM", "*res://" + Registry.GameData.mod_loader_autoload)
+			DirAccess.copy_absolute("res://System/4.x/" + GameData.mod_loader_autoload, game_metadata.game_path.path_join(GameData.mod_loader_autoload))
+			config.set_value("autoload", "GUMM", "*res://" + GameData.mod_loader_autoload)
 
-	config.set_value("gumm", "mod_list", game_metadata.installed_mods.filter(func(mod: Registry.GameData.ModData) -> bool: return mod.active).map(func(mod: Registry.GameData.ModData) -> String: return mod.load_path))
+	config.set_value("gumm", "mod_list", game_metadata.installed_mods.filter(func(mod: ModData) -> bool: return mod.active).map(func(mod: ModData) -> String: return mod.load_path))
 
 	config.save(override_file)
 

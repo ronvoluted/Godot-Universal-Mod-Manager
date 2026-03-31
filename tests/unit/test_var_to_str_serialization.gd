@@ -75,23 +75,23 @@ func test_pre_43_game_with_mods_loads() -> void:
 # -- Registry pipeline: get_var() → var_to_str → str_to_var → GameData.new() --
 
 func test_game_data_round_trip_preserves_entry_path() -> void:
-	var game := Registry.GameData.new({entry_path = "/test/path", game_path = "/test/game", installed_mods = []})
+	var game := GameData.new({entry_path = "/test/path", game_path = "/test/game", installed_mods = []})
 	var serialized := var_to_str([game.get_var()])
 	var deserialized: Array = str_to_var(serialized)
-	var restored := Registry.GameData.new(deserialized[0])
+	var restored := GameData.new(deserialized[0])
 	assert_eq(restored.entry_path, "/test/path")
 
 
 func test_game_data_round_trip_preserves_game_path() -> void:
-	var game := Registry.GameData.new({entry_path = "/test/path", game_path = "/test/game", installed_mods = []})
+	var game := GameData.new({entry_path = "/test/path", game_path = "/test/game", installed_mods = []})
 	var serialized := var_to_str([game.get_var()])
 	var deserialized: Array = str_to_var(serialized)
-	var restored := Registry.GameData.new(deserialized[0])
+	var restored := GameData.new(deserialized[0])
 	assert_eq(restored.game_path, "/test/game")
 
 
 func test_game_data_round_trip_preserves_mod_data() -> void:
-	var game := Registry.GameData.new({
+	var game := GameData.new({
 		entry_path = "/test/path",
 		game_path = "/test/game",
 		installed_mods = [
@@ -101,23 +101,23 @@ func test_game_data_round_trip_preserves_mod_data() -> void:
 	})
 	var serialized := var_to_str([game.get_var()])
 	var deserialized: Array = str_to_var(serialized)
-	var restored := Registry.GameData.new(deserialized[0])
+	var restored := GameData.new(deserialized[0])
 	assert_eq(restored.installed_mods.size(), 2)
 	assert_eq(restored.installed_mods[0].load_path, "/mods/a")
 	assert_eq(restored.installed_mods[1].load_path, "/mods/b")
 
 
 func test_multi_game_round_trip() -> void:
-	var games: Array[Registry.GameData] = [
-		Registry.GameData.new({entry_path = "/game1", game_path = "/gp1", installed_mods = []}),
-		Registry.GameData.new({entry_path = "/game2", game_path = "/gp2", installed_mods = [{load_path = "/mod", active = true}]}),
-		Registry.GameData.new({entry_path = "/game3", game_path = "/gp3", installed_mods = []}),
+	var games: Array[GameData] = [
+		GameData.new({entry_path = "/game1", game_path = "/gp1", installed_mods = []}),
+		GameData.new({entry_path = "/game2", game_path = "/gp2", installed_mods = [{load_path = "/mod", active = true}]}),
+		GameData.new({entry_path = "/game3", game_path = "/gp3", installed_mods = []}),
 	]
-	var game_list := games.map(func(game: Registry.GameData) -> Dictionary[StringName, Variant]: return game.get_var())
+	var game_list := games.map(func(game: GameData) -> Dictionary[StringName, Variant]: return game.get_var())
 	var serialized := var_to_str(game_list)
 	var deserialized: Array = str_to_var(serialized)
-	var restored: Array[Registry.GameData] = []
-	restored.assign(deserialized.map(Registry.GameData.new))
+	var restored: Array[GameData] = []
+	restored.assign(deserialized.map(GameData.new))
 
 	assert_eq(restored.size(), 3)
 	assert_eq(restored[0].entry_path, "/game1")

@@ -4,12 +4,12 @@ signal active_toggled
 signal recovered
 
 var entry: ModDescriptor
-var metadata: Registry.GameData.ModData
+var metadata: ModData
 
 var missing: bool
 var has_icon: bool
 
-func set_mod(meta: Registry.GameData.ModData) -> void:
+func set_mod(meta: ModData) -> void:
 	metadata = meta
 	
 	entry = ModDescriptor.new()

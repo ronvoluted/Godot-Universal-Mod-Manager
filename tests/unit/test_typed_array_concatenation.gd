@@ -60,55 +60,55 @@ func test_concatenation_does_not_mutate_originals() -> void:
 # -- Project typed arrays: Array[GameData] --
 
 func test_game_data_array_concatenation() -> void:
-	var a: Array[Registry.GameData] = []
-	var b: Array[Registry.GameData] = []
-	var game_a := Registry.GameData.new({entry_path = "/path/a", game_path = "/game/a", installed_mods = []})
-	var game_b := Registry.GameData.new({entry_path = "/path/b", game_path = "/game/b", installed_mods = []})
+	var a: Array[GameData] = []
+	var b: Array[GameData] = []
+	var game_a := GameData.new({entry_path = "/path/a", game_path = "/game/a", installed_mods = []})
+	var game_b := GameData.new({entry_path = "/path/b", game_path = "/game/b", installed_mods = []})
 	a.append(game_a)
 	b.append(game_b)
 
 	var result := a + b
 	assert_eq(result.size(), 2)
-	assert_true(result is Array[Registry.GameData])
+	assert_true(result is Array[GameData])
 	assert_eq(result[0].entry_path, "/path/a")
 	assert_eq(result[1].entry_path, "/path/b")
 
 
 func test_game_data_concatenation_with_empty() -> void:
-	var a: Array[Registry.GameData] = []
-	var b: Array[Registry.GameData] = []
-	var game := Registry.GameData.new({entry_path = "/path/a", game_path = "/game/a", installed_mods = []})
+	var a: Array[GameData] = []
+	var b: Array[GameData] = []
+	var game := GameData.new({entry_path = "/path/a", game_path = "/game/a", installed_mods = []})
 	a.append(game)
 
 	var result := a + b
 	assert_eq(result.size(), 1)
-	assert_true(result is Array[Registry.GameData])
+	assert_true(result is Array[GameData])
 	assert_eq(result[0].entry_path, "/path/a")
 
 
 # -- Project typed arrays: Array[ModData] --
 
 func test_mod_data_array_concatenation() -> void:
-	var a: Array[Registry.GameData.ModData] = []
-	var b: Array[Registry.GameData.ModData] = []
-	var mod_a := Registry.GameData.ModData.new({load_path = "/mods/a", active = true})
-	var mod_b := Registry.GameData.ModData.new({load_path = "/mods/b", active = false})
+	var a: Array[ModData] = []
+	var b: Array[ModData] = []
+	var mod_a := ModData.new({load_path = "/mods/a", active = true})
+	var mod_b := ModData.new({load_path = "/mods/b", active = false})
 	a.append(mod_a)
 	b.append(mod_b)
 
 	var result := a + b
 	assert_eq(result.size(), 2)
-	assert_true(result is Array[Registry.GameData.ModData])
+	assert_true(result is Array[ModData])
 	assert_eq(result[0].load_path, "/mods/a")
 	assert_eq(result[1].load_path, "/mods/b")
 
 
 func test_mod_data_concatenation_preserves_type() -> void:
-	var a: Array[Registry.GameData.ModData] = []
-	var b: Array[Registry.GameData.ModData] = []
+	var a: Array[ModData] = []
+	var b: Array[ModData] = []
 	var result := a + b
 	assert_eq(result.size(), 0)
-	assert_true(result is Array[Registry.GameData.ModData])
+	assert_true(result is Array[ModData])
 
 
 # -- Multiple concatenations --
@@ -123,16 +123,16 @@ func test_chained_concatenation() -> void:
 
 
 func test_chained_game_data_concatenation() -> void:
-	var a: Array[Registry.GameData] = []
-	var b: Array[Registry.GameData] = []
-	var c: Array[Registry.GameData] = []
-	a.append(Registry.GameData.new({entry_path = "/a"}))
-	b.append(Registry.GameData.new({entry_path = "/b"}))
-	c.append(Registry.GameData.new({entry_path = "/c"}))
+	var a: Array[GameData] = []
+	var b: Array[GameData] = []
+	var c: Array[GameData] = []
+	a.append(GameData.new({entry_path = "/a"}))
+	b.append(GameData.new({entry_path = "/b"}))
+	c.append(GameData.new({entry_path = "/c"}))
 
 	var result := a + b + c
 	assert_eq(result.size(), 3)
-	assert_true(result is Array[Registry.GameData])
+	assert_true(result is Array[GameData])
 	assert_eq(result[0].entry_path, "/a")
 	assert_eq(result[1].entry_path, "/b")
 	assert_eq(result[2].entry_path, "/c")

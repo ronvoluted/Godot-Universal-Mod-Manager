@@ -5,12 +5,12 @@ signal recovered
 @onready var button: Button = $Button
 
 var entry: GameDescriptor
-var metadata: Registry.GameData
+var metadata: GameData
 
 var missing: bool
 var has_icon: bool
 
-func set_game(meta: Registry.GameData) -> void:
+func set_game(meta: GameData) -> void:
 	metadata = meta
 	
 	entry = GameDescriptor.new()
@@ -33,7 +33,7 @@ func set_game(meta: Registry.GameData) -> void:
 	
 	%Installed.text %= metadata.installed_mods.size()
 	if metadata.mods_enabled:
-		%Active.text %= metadata.installed_mods.filter(func(mod: Registry.GameData.ModData) -> bool: return mod.active).size()
+		%Active.text %= metadata.installed_mods.filter(func(mod: ModData) -> bool: return mod.active).size()
 	else:
 		%Active.text %= 0
 	

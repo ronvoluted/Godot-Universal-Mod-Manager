@@ -8,7 +8,7 @@ func test_game_entries_file_is_string() -> void:
 
 
 func test_games_array_is_typed() -> void:
-	var games: Array[Registry.GameData] = Registry.games
+	var games: Array[GameData] = Registry.games
 	assert_eq(typeof(games), TYPE_ARRAY)
 
 
@@ -19,28 +19,28 @@ func test_icon_formats_is_packed_string_array() -> void:
 # -- GameData type safety --
 
 func test_game_data_entry_is_game_descriptor() -> void:
-	var game := Registry.GameData.new({})
+	var game := GameData.new({})
 	assert_is(game.entry, GameDescriptor)
 
 
 func test_game_data_entry_path_is_string() -> void:
-	var game := Registry.GameData.new({entry_path = "/test"})
+	var game := GameData.new({entry_path = "/test"})
 	assert_typeof(game.entry_path, TYPE_STRING)
 
 
 func test_game_data_mods_enabled_is_bool() -> void:
-	var game := Registry.GameData.new({})
+	var game := GameData.new({})
 	assert_typeof(game.mods_enabled, TYPE_BOOL)
 
 
 func test_game_data_installed_mods_is_typed_array() -> void:
-	var game := Registry.GameData.new({})
-	var mods: Array[Registry.GameData.ModData] = game.installed_mods
+	var game := GameData.new({})
+	var mods: Array[ModData] = game.installed_mods
 	assert_eq(mods.size(), 0)
 
 
 func test_game_data_get_var_returns_typed_dict() -> void:
-	var game := Registry.GameData.new({entry_path = "/a", game_path = "/b"})
+	var game := GameData.new({entry_path = "/a", game_path = "/b"})
 	var result: Dictionary[StringName, Variant] = game.get_var()
 	assert_has(result, &"entry_path")
 	assert_has(result, &"game_path")
@@ -50,22 +50,22 @@ func test_game_data_get_var_returns_typed_dict() -> void:
 # -- ModData type safety --
 
 func test_mod_data_entry_is_mod_descriptor() -> void:
-	var mod := Registry.GameData.ModData.new({})
+	var mod := ModData.new({})
 	assert_is(mod.entry, ModDescriptor)
 
 
 func test_mod_data_load_path_is_string() -> void:
-	var mod := Registry.GameData.ModData.new({load_path = "/test"})
+	var mod := ModData.new({load_path = "/test"})
 	assert_typeof(mod.load_path, TYPE_STRING)
 
 
 func test_mod_data_active_is_bool() -> void:
-	var mod := Registry.GameData.ModData.new({})
+	var mod := ModData.new({})
 	assert_typeof(mod.active, TYPE_BOOL)
 
 
 func test_mod_data_get_var_returns_typed_dict() -> void:
-	var mod := Registry.GameData.ModData.new({load_path = "/m", active = false})
+	var mod := ModData.new({load_path = "/m", active = false})
 	var result: Dictionary[StringName, Variant] = mod.get_var()
 	assert_has(result, &"load_path")
 	assert_has(result, &"active")
