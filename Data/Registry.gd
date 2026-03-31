@@ -28,7 +28,8 @@ func add_new_game_entry(entry_path: String, game_path: String) -> GameData:
 func add_new_mod_entry(game: GameData, load_path: String) -> GameData.ModData:
 	var mod := GameData.ModData.new({load_path = load_path, active = true})
 	
-	var existing_index := game.installed_mods.find_custom(func(mod_meta: GameData.ModData) -> bool: return mod_meta.entry.name == mod.entry.name)
+	var dir := DirAccess.open(load_path)
+	var existing_index := game.installed_mods.find_custom(func(mod_meta: GameData.ModData) -> bool: return dir and dir.is_equivalent(mod_meta.load_path, load_path))
 	if existing_index != -1:
 		game.installed_mods[existing_index].load_path = load_path
 		return game.installed_mods[existing_index]

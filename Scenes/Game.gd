@@ -9,7 +9,8 @@ var entry_to_delete: Control
 func _ready() -> void:
 	var entry_path: String = get_tree().get_meta(&"current_game", "")
 	
-	var game_index := Registry.games.find_custom(func(meta: Registry.GameData) -> bool: return meta.entry_path == entry_path)
+	var dir := DirAccess.open(entry_path)
+	var game_index := Registry.games.find_custom(func(meta: Registry.GameData) -> bool: return dir and dir.is_equivalent(meta.entry_path, entry_path))
 	game_metadata = Registry.games[game_index]
 	
 	game_data = game_metadata.entry
