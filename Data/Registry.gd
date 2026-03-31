@@ -1,23 +1,61 @@
 extends Node
 
-const GAME_ENTRIES_FILE: String = "user://game_list.txt"
+const GAME_ENTRIES_FILE: String = "user://game_list.cfg"
+const LEGACY_ENTRIES_FILE: String = "user://game_list.txt"
 const ICON_FORMATS: PackedStringArray = ["png", "jpg"]
 
 var games: Array[GameData]
 
 func _enter_tree() -> void:
-	var game_entries := FileAccess.open(GAME_ENTRIES_FILE, FileAccess.READ)
-	if game_entries:
-		var game_list: Array[Variant] = str_to_var(game_entries.get_as_text())
-		games.assign(game_list.map(GameData.new))
+	if FileAccess.file_exists(GAME_ENTRIES_FILE):
+		_load_config()
+	elif FileAccess.file_exists(LEGACY_ENTRIES_FILE):
+		_load_legacy()
+		save_game_entry_list()
+		DirAccess.remove_absolute(LEGACY_ENTRIES_FILE)
+
+func _load_config() -> void:
+	var cfg := ConfigFile.new()
+	if cfg.load(GAME_ENTRIES_FILE) != OK:
+		return
+	var game_index := 0
+	while cfg.has_section("game.%d" % game_index):
+		var section := "game.%d" % game_index
+		var entry_path: String = cfg.get_value(section, "entry_path", "")
+		var game_path: String = cfg.get_value(section, "game_path", "")
+		var mods: Array[Variant] = []
+		var mod_index := 0
+		while cfg.has_section("%s.mod.%d" % [section, mod_index]):
+			var mod_section := "%s.mod.%d" % [section, mod_index]
+			mods.append({
+				load_path = cfg.get_value(mod_section, "load_path", ""),
+				active = cfg.get_value(mod_section, "active", false),
+			})
+			mod_index += 1
+		games.append(GameData.new({entry_path = entry_path, game_path = game_path, installed_mods = mods}))
+		game_index += 1
+
+func _load_legacy() -> void:
+	var file := FileAccess.open(LEGACY_ENTRIES_FILE, FileAccess.READ)
+	if not file:
+		return
+	var game_list: Variant = str_to_var(file.get_as_text())
+	if game_list is Array:
+		games.assign(Array(game_list).map(GameData.new))
 
 func save_game_entry_list() -> Error:
-	var game_entries := FileAccess.open(GAME_ENTRIES_FILE, FileAccess.WRITE)
-	if not game_entries:
-		return FileAccess.get_open_error()
-	var game_list := games.map(func(game: GameData) -> Dictionary[StringName, Variant]: return game.get_var())
-	game_entries.store_string(var_to_str(game_list))
-	return game_entries.get_error()
+	var cfg := ConfigFile.new()
+	for i: int in games.size():
+		var game := games[i]
+		var section := "game.%d" % i
+		cfg.set_value(section, "entry_path", game.entry_path)
+		cfg.set_value(section, "game_path", game.game_path)
+		for j: int in game.installed_mods.size():
+			var mod := game.installed_mods[j]
+			var mod_section := "%s.mod.%d" % [section, j]
+			cfg.set_value(mod_section, "load_path", mod.load_path)
+			cfg.set_value(mod_section, "active", mod.active)
+	return cfg.save(GAME_ENTRIES_FILE)
 
 func add_new_game_entry(entry_path: String, game_path: String) -> GameData:
 	var game := GameData.new({entry_path = entry_path, game_path = game_path, installed_mods = []})

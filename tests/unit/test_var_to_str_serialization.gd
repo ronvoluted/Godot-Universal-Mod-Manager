@@ -1,7 +1,9 @@
 extends GutTest
 ## Verify var_to_str/str_to_var serialization round-trips correctly.
 ## Regression coverage for Godot GH-78219 (typed array serialization change in 4.3).
-## Registry.gd uses these functions to persist the game list to disk.
+## Legacy coverage: Registry.gd previously used these functions for persistence
+## (now uses ConfigFile). These tests remain for Godot engine regression coverage
+## and to validate the legacy migration path in Registry._load_legacy().
 
 
 # -- Round-trip: primitives and collections --
