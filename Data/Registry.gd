@@ -46,9 +46,9 @@ func smart_resize_to_80(image: Image) -> void:
 	if image.get_width() == image.get_height():
 		image.resize(80, 80, Image.INTERPOLATE_LANCZOS)
 	elif image.get_width() > image.get_height():
-		image.resize(80, int(80.0 * image.get_height() / image.get_width()))
+		image.resize(80, roundi(80.0 * image.get_height() / image.get_width()))
 	elif image.get_width() < image.get_height():
-		image.resize(int(80.0 * image.get_width() / image.get_height()), 80)
+		image.resize(roundi(80.0 * image.get_width() / image.get_height()), 80)
 	else:
 		get_tree().quit(1) # impossible
 

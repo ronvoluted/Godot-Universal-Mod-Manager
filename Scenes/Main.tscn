@@ -84,7 +84,7 @@ size = Vector2i(616, 180)
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 608.0
-offset_bottom = 131.0
+offset_bottom = 132.0
 
 [node name="VBoxContainer" type="GridContainer" parent="AddGame/VBoxContainer2"]
 custom_minimum_size = Vector2(600, 0)
@@ -126,7 +126,7 @@ autowrap_mode = 2
 
 [node name="CreateGame" type="AcceptDialog" parent="."]
 title = "Create Game Entry"
-size = Vector2i(616, 357)
+size = Vector2i(616, 358)
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="CreateGame"]
 offset_left = 8.0
