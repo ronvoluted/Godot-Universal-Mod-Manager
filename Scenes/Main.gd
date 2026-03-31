@@ -6,8 +6,13 @@ var directory_mode: int = -1
 var entry_to_delete: Control
 
 func _ready() -> void:
+	get_tree().scene_changed.connect(_on_scene_changed, CONNECT_ONE_SHOT)
 	for game: Registry.GameData in Registry.games:
 		add_game_entry(game)
+
+func _on_scene_changed(_scene_root: Node) -> void:
+	if get_tree().has_meta(&"current_game"):
+		get_tree().remove_meta(&"current_game")
 
 #region Game Import
 

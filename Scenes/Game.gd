@@ -8,23 +8,25 @@ var entry_to_delete: Control
 
 func _ready() -> void:
 	var entry_path: String = get_tree().get_meta(&"current_game", "")
-	
+
 	var dir := DirAccess.open(entry_path)
 	var game_index := Registry.games.find_custom(func(meta: Registry.GameData) -> bool: return dir and dir.is_equivalent(meta.entry_path, entry_path))
 	game_metadata = Registry.games[game_index]
-	
+
 	game_data = game_metadata.entry
-	
+
+	get_tree().scene_changed.connect(_on_scene_changed, CONNECT_ONE_SHOT)
+
+func _on_scene_changed(_scene_root: Node) -> void:
 	var new_missing: bool
 	for mod: Registry.GameData.ModData in game_metadata.installed_mods:
-		var active := mod.active
 		add_mod_entry(mod)
 		if not mod.active:
 			new_missing = true
-	
+
 	if new_missing:
 		apply_mods()
-	
+
 	%GameTitle.text = game_data.title
 	%GameIcon.texture = ImageTexture.create_from_image(Image.load_from_file(game_metadata.entry_path.path_join("icon.png")))
 	%GodotVersion.text %= game_data.godot_version
