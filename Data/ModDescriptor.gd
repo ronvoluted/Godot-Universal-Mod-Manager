@@ -8,7 +8,6 @@ var game: String
 var name: String
 var description: String
 var version: String
-var dependencies: PackedStringArray
 
 func _read_fields(cfg: ConfigFile) -> void:
 	game = cfg.get_value(section, "game")

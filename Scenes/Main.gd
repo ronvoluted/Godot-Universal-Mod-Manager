@@ -31,7 +31,7 @@ func validate_add() -> void:
 
 	var data := GameDescriptor.new()
 	data.load_data(%ImportPath.text)
-	if %GameList.get_children().find_custom(func(game: Node) -> bool: return game.descriptor.title == data.title) != -1:
+	if %GameList.get_children().slice(1).find_custom(func(game: Node) -> bool: return game.descriptor.title == data.title) != -1:
 		set_add_error("Game already on the list. Delete it first.")
 		return
 
@@ -95,7 +95,7 @@ func validate_create() -> void:
 		set_create_error("Title can't be empty.")
 		return
 
-	if %GameList.get_children().find_custom(func(game: Node) -> bool: return game.descriptor.title == %CreateTitle.text) != -1:
+	if %GameList.get_children().slice(1).find_custom(func(game: Node) -> bool: return game.descriptor.title == %CreateTitle.text) != -1:
 		set_create_error("Game already on the list.")
 		return
 

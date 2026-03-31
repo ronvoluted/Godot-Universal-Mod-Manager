@@ -8,7 +8,6 @@ var descriptor: GameDescriptor
 var data: GameData
 
 var missing: bool
-var has_icon: bool
 
 func set_game(game: GameData) -> void:
 	data = game

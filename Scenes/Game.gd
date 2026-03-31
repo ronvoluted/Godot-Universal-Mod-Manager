@@ -175,9 +175,9 @@ func refresh_entry(old_entry: Control) -> void:
 	old_entry.queue_free()
 
 func get_mod_by_name(mod_name: String) -> Control:
-	var children := %ModList.get_children()
-	var index := children.find_custom(func(entry: Node) -> bool: return entry.descriptor.name == mod_name)
-	return children[index] if index != -1 else null
+	var entries := %ModList.get_children().slice(1)
+	var index := entries.find_custom(func(entry: Node) -> bool: return entry.descriptor.name == mod_name)
+	return entries[index] if index != -1 else null
 
 #endregion
 

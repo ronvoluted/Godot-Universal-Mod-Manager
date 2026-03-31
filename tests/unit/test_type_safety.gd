@@ -87,7 +87,3 @@ func test_mod_descriptor_properties_are_strings() -> void:
 	assert_typeof(desc.description, TYPE_STRING)
 	assert_typeof(desc.version, TYPE_STRING)
 
-
-func test_mod_descriptor_dependencies_is_packed_string_array() -> void:
-	var desc := ModDescriptor.new()
-	assert_typeof(desc.dependencies, TYPE_PACKED_STRING_ARRAY)
