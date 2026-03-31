@@ -10,6 +10,8 @@ The manager takes advantage of two facts:
 
 With this, you can override the main scene and inject/replace any resource in the game.
 
+For Godot 4.x, the mod loader uses a different approach: it registers itself as a **front-loaded autoload** via `override.cfg`, which ensures mod initialization happens before any game autoloads. This makes mod loading more reliable than the scene-replacement approach used in 2.x/3.x.
+
 ### Caveats
 
 There are a few things that make modding this way difficult or impossible:
@@ -19,6 +21,7 @@ There are a few things that make modding this way difficult or impossible:
 - `take_over_path()` will not work when resources are loaded without cache (which is unlikely, but possible)
 - if the game uses non-resource files, like `json` or `txt`, you won't be able to replace them with ResourceLoader
 - to replace script or scene, you need to first get a copy of it and modify yourself, which is difficult outside the project
+- in Godot 4.6+, games can set `disable_project_settings_override = true` in their `project.godot`, which prevents `override.cfg` from loading entirely — GUMM will detect this and show a warning
 
 ## Basics
 
@@ -52,7 +55,7 @@ When you first open the game entry, your mod list will be empty too:
 
 ![](Media/ModListEmpty.png)
 
-Aside from Import/Create options, which are pretty much the same as with games, there is a few more elements here. Godot version next to the game title, the Open Game Directory button that opens the installation directory of the game. The Enable Mods button will add GUMM loader to the installation directory. It consists of 2 things: `override.cfg` file and `GUMM_mod_loader.tscn` scene, which is entry point for loading mods. When these 2 files are in installed, launching your game will load all mods that are on your list and are active. Note that if a game already has `override.cfg`, mod loader will add its entries to the existing file.
+Aside from Import/Create options, which are pretty much the same as with games, there is a few more elements here. Godot version next to the game title, the Open Game Directory button that opens the installation directory of the game. The Enable Mods button will add GUMM loader to the installation directory. For Godot 2.x/3.x, this consists of an `override.cfg` file and a `GUMM_mod_loader.tscn` scene. For Godot 4.x, the loader is installed as an autoload script (`GUMM_mod_loader_autoload.gd`) registered in `override.cfg`. When these files are installed, launching your game will load all mods that are on your list and are active. Note that if a game already has `override.cfg`, mod loader will add its entries to the existing file.
 
 Importing a mod is the same as importing game entry. You need a mod directory with `mod.cfg` file. Select the directory and you will see the mod information:
 
@@ -80,7 +83,7 @@ Of note is the Path field, which needs to be pointing to an *empty* directory. T
 
 ### Mod Structure
 
-Once you create a new mod, it will contain 3 files: `mod.cfg` that describes your mod and `mod.gd` which is the script loaded by the game. There is also `GUMM_mod.gd`, which provides basic API for managing mod data. It should not be edited and your `mod.png` extends this file. The resources you want to add/replace should be contained within the mod directory; can be inside sub-folders.
+Once you create a new mod, it will contain 3 files: `mod.cfg` that describes your mod and `mod.gd` which is the script loaded by the game. There is also `GUMM_mod.gd`, which provides basic API for managing mod data. It should not be edited and your `mod.gd` extends this file. The resources you want to add/replace should be contained within the mod directory; can be inside sub-folders.
 
 Note that these 3 files vary depending on Godot version. GUMM will automatically copy the files based on the Godot version specified in the game's entry. There are 3 supported versions: `2.x`, `3.x`, `4.x`. They API is designed to support all minor releases, so `3.x` can be used from `3.0` to `3.6` (which is e.g. why it doesn't use typing, which was added in `3.1`).
 
@@ -108,6 +111,7 @@ You can use the `scene_tree` argument to e.g. inject custom nodes into scene tre
 |Load MP3|✖|✔¹|✔
 |Load WAV²|✖|✖|✖
 |Load GLTF²|✖|✖|✖
+|Threaded Resource Loading|✖|✖|✔
 
 ¹Since 3.3
 
@@ -122,6 +126,7 @@ Feature-dependent methods:
 - `load_texture(path: String, flags: int = 7)` [Load Textures] - loads a texture using Image class. Note that `flags` is removed in Godot 4.x
 - `load_ogg(path: String)` [Load OGG] - loads an OGG audio stream
 - `load_mp3(path: String)` [Load MP3] - loads a MP3 audio stream
+- `load_resource_threaded(path: String)` [Threaded Resource Loading] - loads a resource asynchronously using `ResourceLoader` threaded loading (4.x only)
 
 ### Modding API
 
