@@ -9,6 +9,8 @@ func _ready() -> void:
 	for game: Registry.GameData in Registry.games:
 		add_game_entry(game)
 
+#region Game Import
+
 func on_add_game_entry() -> void:
 	%ImportPath.clear()
 	%ImportGame.clear()
@@ -64,6 +66,10 @@ func import_game_entry() -> void:
 	
 	var entry_data := Registry.add_new_game_entry(entry_folder, %ImportGame.text.simplify_path())
 	add_game_entry(entry_data)
+
+#endregion
+
+#region Game Creation
 
 func on_create_game_entry() -> void:
 	%CreateTitle.clear()
@@ -132,6 +138,10 @@ func create_game_entry() -> void:
 	var entry_data := Registry.add_new_game_entry(entry_path, %CreateDirectory.text.simplify_path())
 	add_game_entry(entry_data)
 
+#endregion
+
+#region Entry Management
+
 func add_game_entry(game: Registry.GameData) -> Control:
 	var entry: Control = preload("res://Nodes/GameEntry.tscn").instantiate()
 	%GameList.add_child(entry)
@@ -183,3 +193,5 @@ func remove_game(entry: Control, confirmed := false) -> void:
 		$DeleteConfirm.dialog_text = "Delete game \"%s\"?" % entry.entry.title
 		$DeleteConfirm.reset_size()
 		$DeleteConfirm.popup_centered()
+
+#endregion

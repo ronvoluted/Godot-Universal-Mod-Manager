@@ -31,6 +31,8 @@ func _ready() -> void:
 	%GodotVersion.text %= game_data.godot_version
 	%ModsEnabled.set_pressed_no_signal(game_metadata.mods_enabled)
 
+#region Mod CRUD
+
 func import_mod() -> void:
 	%ImportModPath.text = ""
 	import_mod_update()
@@ -40,45 +42,36 @@ func import_mod_update() -> void:
 	%ImportModName.text = ""
 	%ImportModDescription.text = ""
 	%ImportModVersion.text = ""
-	
+
 	if %ImportModPath.text.is_empty():
 		set_import_error("Path can't be empty.")
 		return
-	
+
 	if not DirAccess.dir_exists_absolute(%ImportModPath.text):
 		set_import_error("The provided directory does not exist.")
 		return
-	
+
 	if not FileAccess.file_exists(%ImportModPath.text.path_join(ModDescriptor.config_file)):
 		set_import_error("No \"%s\" found at the given location." % ModDescriptor.config_file)
 		return
-	
+
 	var mod_data := ModDescriptor.new()
 	mod_data.load_data(%ImportModPath.text)
-	
+
 	if mod_data.game != game_data.title:
 		set_import_error("Mod isn't made for \"%s\"." % game_data.title)
 		return
-	
+
 	set_import_error("")
-	
+
 	var existing := get_mod_by_name(mod_data.name)
 	if existing:
 		set_import_warning("A mod with this name already exists, with version %s. It will be replaced." % existing.entry.version)
 		entry_to_update = existing
-	
+
 	%ImportModName.text = mod_data.name
 	%ImportModDescription.text = mod_data.description
 	%ImportModVersion.text = mod_data.version
-
-func set_import_error(error: String) -> void:
-	%ImportError.add_theme_color_override(&"font_color", Color.RED)
-	%ImportError.text = error
-	$ImportModDialog.get_ok_button().disabled = not error.is_empty()
-
-func set_import_warning(warning: String) -> void:
-	%ImportError.add_theme_color_override(&"font_color", Color.YELLOW)
-	%ImportError.text = warning
 
 func import_mod_confirmed() -> void:
 	var entry := Registry.add_new_mod_entry(game_metadata, %ImportModPath.text)
@@ -93,7 +86,7 @@ func add_mod_entry(mod: Registry.GameData.ModData) -> Control:
 	%ModList.add_child(entry)
 	entry.owner = self
 	entry.set_mod(mod)
-	
+
 	entry.get_node(^"%Edit").pressed.connect(edit_mod.bind(entry))
 	entry.get_node(^"%Remove").pressed.connect(remove_mod.bind(entry))
 	return entry
@@ -122,25 +115,92 @@ func begin_edit_mod() -> void:
 	validate_new_mod()
 	$NewModDialog.popup_centered()
 
+func create_mod_confirmed() -> void:
+	var mod_data := ModDescriptor.new()
+	mod_data.game = game_data.title
+	mod_data.name = %NewModName.text
+	mod_data.description = %NewModDescription.text
+	mod_data.version = %NewModVersion.text
+	mod_data.save_data(%NewModPath.text)
+
+	if not %IconPath.text.is_empty() and FileAccess.file_exists(%IconPath.text) and %IconPath.text.get_extension() in Registry.ICON_FORMATS:
+		var image := Image.load_from_file(%IconPath.text)
+		if image:
+			Registry.smart_resize_to_80(image)
+			image.save_png(%NewModPath.text.path_join("icon.png"))
+
+	if entry_to_update:
+		refresh_entry(entry_to_update)
+		return
+
+	DirAccess.copy_absolute("res://System/%s/GUMM_mod.gd" % game_data.godot_version, %NewModPath.text.path_join("GUMM_mod.gd"))
+	DirAccess.copy_absolute("res://System/%s/mod.gd" % game_data.godot_version, %NewModPath.text.path_join("mod.gd"))
+
+	var mod_entry := Registry.add_new_mod_entry(game_metadata, %NewModPath.text)
+	add_mod_entry(mod_entry)
+	apply_mods()
+
+func edit_mod(entry: Control) -> void:
+	entry_to_update = entry
+	begin_edit_mod()
+
+func remove_mod(entry: Control, confirmed := false) -> void:
+	if confirmed:
+		entry = entry_to_delete
+		entry.missing = true
+
+	if entry.missing:
+		Registry.remove_mod_entry(game_metadata, entry.metadata)
+		entry.queue_free()
+	else:
+		entry_to_delete = entry
+		$DeleteConfirm.dialog_text = "Delete mod \"%s\"?" % entry.entry.name
+		$DeleteConfirm.reset_size()
+		$DeleteConfirm.popup_centered()
+
+func refresh_entry(old_entry: Control) -> void:
+	var new_entry := add_mod_entry(old_entry.metadata)
+	new_entry.get_parent().move_child(new_entry, old_entry.get_index())
+	old_entry.queue_free()
+
+func get_mod_by_name(mod_name: String) -> Control:
+	for entry: Node in %ModList.get_children():
+		if entry.entry.name == mod_name:
+			return entry
+	return null
+
+#endregion
+
+#region UI Validation
+
+func set_import_error(error: String) -> void:
+	%ImportError.add_theme_color_override(&"font_color", Color.RED)
+	%ImportError.text = error
+	$ImportModDialog.get_ok_button().disabled = not error.is_empty()
+
+func set_import_warning(warning: String) -> void:
+	%ImportError.add_theme_color_override(&"font_color", Color.YELLOW)
+	%ImportError.text = warning
+
 func validate_new_mod() -> void:
 	if %NewModPath.text.is_empty():
 		set_create_error("Path can't be empty.")
 		return
-	
+
 	if not DirAccess.dir_exists_absolute(%NewModPath.text):
 		set_create_error("The provided directory does not exist.")
 		return
-	
+
 	if not %NewModPath.disabled and not DirAccess.get_files_at(%NewModPath.text).is_empty():
 		set_create_error("The selected directory must not contain any files.")
 		return
-	
+
 	if %NewModName.text.is_empty():
 		set_create_error("Mod name can't be empty.")
 		return
-	
+
 	set_create_error("")
-	
+
 	if not %IconPath.disabled and (%IconPath.text.is_empty() or not FileAccess.file_exists(%IconPath.text) or not %IconPath.text.get_extension() in Registry.ICON_FORMATS):
 		set_create_warning("Icon path invalid. The mod will have no icon.")
 
@@ -153,30 +213,9 @@ func set_create_warning(warning: String) -> void:
 	%NewModError.add_theme_color_override(&"font_color", Color.YELLOW)
 	%NewModError.text = warning
 
-func create_mod_confirmed() -> void:
-	var mod_data := ModDescriptor.new()
-	mod_data.game = game_data.title
-	mod_data.name = %NewModName.text
-	mod_data.description = %NewModDescription.text
-	mod_data.version = %NewModVersion.text
-	mod_data.save_data(%NewModPath.text)
-	
-	if not %IconPath.text.is_empty() and FileAccess.file_exists(%IconPath.text) and %IconPath.text.get_extension() in Registry.ICON_FORMATS:
-		var image := Image.load_from_file(%IconPath.text)
-		if image:
-			Registry.smart_resize_to_80(image)
-			image.save_png(%NewModPath.text.path_join("icon.png"))
-	
-	if entry_to_update:
-		refresh_entry(entry_to_update)
-		return
-	
-	DirAccess.copy_absolute("res://System/%s/GUMM_mod.gd" % game_data.godot_version, %NewModPath.text.path_join("GUMM_mod.gd"))
-	DirAccess.copy_absolute("res://System/%s/mod.gd" % game_data.godot_version, %NewModPath.text.path_join("mod.gd"))
-	
-	var mod_entry := Registry.add_new_mod_entry(game_metadata, %NewModPath.text)
-	add_mod_entry(mod_entry)
-	apply_mods()
+#endregion
+
+#region Override.cfg Management
 
 func open_game_directory() -> void:
 	OS.shell_open(game_metadata.game_path)
@@ -236,37 +275,12 @@ func apply_mods() -> void:
 	
 	config.save(override_file)
 
-func edit_mod(entry: Control) -> void:
-	entry_to_update = entry
-	begin_edit_mod()
-
-func remove_mod(entry: Control, confirmed := false) -> void:
-	if confirmed:
-		entry = entry_to_delete
-		entry.missing = true
-	
-	if entry.missing:
-		Registry.remove_mod_entry(game_metadata, entry.metadata)
-		entry.queue_free()
-	else:
-		entry_to_delete = entry
-		$DeleteConfirm.dialog_text = "Delete mod \"%s\"?" % entry.entry.name
-		$DeleteConfirm.reset_size()
-		$DeleteConfirm.popup_centered()
-
-func refresh_entry(old_entry: Control) -> void:
-	var new_entry := add_mod_entry(old_entry.metadata)
-	new_entry.get_parent().move_child(new_entry, old_entry.get_index())
-	old_entry.queue_free()
-
 func get_override_path() -> String:
 	return game_metadata.game_path.path_join("override.cfg")
 
-func get_mod_by_name(mod_name: String) -> Control:
-	for entry: Node in %ModList.get_children():
-		if entry.entry.name == mod_name:
-			return entry
-	return null
+#endregion
+
+#region Navigation
 
 func go_back() -> void:
 	var scene_path := "res://Scenes/Main.tscn"
@@ -285,3 +299,5 @@ func go_back() -> void:
 				push_error("Failed to load scene: %s" % scene_path)
 				get_tree().change_scene_to_file(scene_path)
 				return
+
+#endregion
