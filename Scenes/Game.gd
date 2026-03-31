@@ -32,6 +32,11 @@ func _on_scene_changed(_scene_root: Node) -> void:
 	%GodotVersion.text %= game_data.godot_version
 	%ModsEnabled.set_pressed_no_signal(game_metadata.mods_enabled)
 
+	if is_override_cfg_disabled():
+		%ModsEnabled.disabled = true
+		%ModsEnabled.tooltip_text = "This game has disabled override.cfg via project settings"
+		%OverrideCfgWarning.show()
+
 #region Mod CRUD
 
 func import_mod() -> void:
@@ -300,6 +305,15 @@ func apply_mods() -> void:
 
 func get_override_path() -> String:
 	return game_metadata.game_path.path_join("override.cfg")
+
+func is_override_cfg_disabled() -> bool:
+	var project_cfg_path := game_metadata.game_path.path_join("project.godot")
+	if not FileAccess.file_exists(project_cfg_path):
+		return false
+	var config := ConfigFile.new()
+	if config.load(project_cfg_path) != OK:
+		return false
+	return config.get_value("application", "config/disable_project_settings_override", false)
 
 #endregion
 
