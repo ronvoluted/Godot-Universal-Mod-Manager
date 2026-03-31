@@ -49,8 +49,13 @@ func import_mod_update() -> void:
 		set_import_error("The provided directory does not exist.")
 		return
 
-	if not FileAccess.file_exists(%ImportModPath.text.path_join(ModDescriptor.config_file)):
+	var descriptor_path: String = %ImportModPath.text.path_join(ModDescriptor.config_file)
+	if not FileAccess.file_exists(descriptor_path):
 		set_import_error("No \"%s\" found at the given location." % ModDescriptor.config_file)
+		return
+
+	if FileAccess.get_size(descriptor_path) == 0:
+		set_import_error("\"%s\" is empty." % ModDescriptor.config_file)
 		return
 
 	var mod_data := ModDescriptor.new()

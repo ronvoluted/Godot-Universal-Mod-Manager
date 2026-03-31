@@ -49,6 +49,10 @@ func try_recover(dir: String) -> void:
 	if not FileAccess.file_exists(dir.path_join(GameDescriptor.config_file)):
 		shoot_error.call_deferred("No \"%s\" found at the given location." % GameDescriptor.config_file)
 		return
+
+	if FileAccess.get_size(dir.path_join(GameDescriptor.config_file)) == 0:
+		shoot_error.call_deferred("\"%s\" is empty." % GameDescriptor.config_file)
+		return
 	
 	metadata.entry_path = dir
 	Registry.save_game_entry_list()

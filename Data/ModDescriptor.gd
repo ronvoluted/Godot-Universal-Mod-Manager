@@ -11,8 +11,12 @@ var version: String
 var dependencies: PackedStringArray
 
 func load_data(path: String) -> bool:
+	var file_path := path.path_join(config_file)
+	if not FileAccess.file_exists(file_path) or FileAccess.get_size(file_path) == 0:
+		return false
+
 	var cfg := ConfigFile.new()
-	if cfg.load(path.path_join(config_file)) != OK:
+	if cfg.load(file_path) != OK:
 		return false
 
 	game = cfg.get_value(section, "game")

@@ -25,8 +25,13 @@ func validate_add() -> void:
 		set_add_error("Descriptor path can't be empty.")
 		return
 	
-	if not FileAccess.file_exists(%ImportPath.text.path_join(GameDescriptor.config_file)):
+	var descriptor_path: String = %ImportPath.text.path_join(GameDescriptor.config_file)
+	if not FileAccess.file_exists(descriptor_path):
 		set_add_error("Descriptor directory invalid. Missing \"%s\"." % GameDescriptor.config_file)
+		return
+
+	if FileAccess.get_size(descriptor_path) == 0:
+		set_add_error("\"%s\" is empty." % GameDescriptor.config_file)
 		return
 	
 	var data := GameDescriptor.new()
