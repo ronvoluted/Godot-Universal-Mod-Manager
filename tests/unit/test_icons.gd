@@ -43,7 +43,8 @@ func test_load_texture_returns_null_for_missing_dir() -> void:
 
 
 func test_load_texture_returns_texture_for_valid_icon() -> void:
-	var tmp_dir := DirAccess.create_temp("test_icons")
+	var tmp_dir := "user://test_icons"
+	DirAccess.make_dir_recursive_absolute(tmp_dir)
 	var image := Image.create(16, 16, false, Image.FORMAT_RGBA8)
 	image.save_png(tmp_dir.path_join("icon.png"))
 

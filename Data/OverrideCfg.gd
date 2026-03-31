@@ -6,11 +6,11 @@ class_name OverrideCfg
 ## redirect the main scene (2.x/3.x) or register an autoload (4.x) that
 ## bootstraps mod loading.
 
-static func get_path(game: GameData) -> String:
+static func get_override_path(game: GameData) -> String:
 	return game.game_path.path_join("override.cfg")
 
 static func apply(game: GameData) -> Error:
-	var override_path := get_path(game)
+	var override_path := get_override_path(game)
 	var config := ConfigFile.new()
 	if FileAccess.file_exists(override_path):
 		config.load(override_path)
@@ -43,7 +43,7 @@ static func apply(game: GameData) -> Error:
 	return save_err
 
 static func remove(game: GameData) -> void:
-	var override_path := get_path(game)
+	var override_path := get_override_path(game)
 	var config := ConfigFile.new()
 	config.load(override_path)
 

@@ -26,6 +26,16 @@ func test_no_globally_suppressed_warnings() -> void:
 			assert_ne(value, 0, "Warning '%s' should not be globally suppressed (=0)" % warning)
 
 
+func test_directory_rules_only_cover_addons() -> void:
+	var config := ConfigFile.new()
+	var err := config.load("res://project.godot")
+	assert_eq(err, OK)
+
+	var rules: Dictionary = config.get_value("debug", "gdscript/warnings/directory_rules", {})
+	assert_eq(rules.size(), 1, "directory warning overrides should only cover addons/")
+	assert_true(rules.has("res://addons/"), "directory_rules should include res://addons/")
+
+
 func test_addon_directory_rules_suppress_warnings() -> void:
 	var config := ConfigFile.new()
 	var err := config.load("res://project.godot")

@@ -70,14 +70,14 @@ func test_game_scene_has_empty_state_label() -> void:
 func test_game_scene_import_error_has_autowrap() -> void:
 	var game := preload("res://Scenes/Game.tscn").instantiate()
 	var label: Label = game.get_node(^"%ImportError")
-	assert_eq(label.autowrap_mode, TextServer.AUTOWRAP_WORD_SMART)
+	assert_eq(label.autowrap_mode, TextServer.AUTOWRAP_WORD)
 	game.free()
 
 
 func test_game_scene_new_mod_error_has_autowrap() -> void:
 	var game := preload("res://Scenes/Game.tscn").instantiate()
 	var label: Label = game.get_node(^"%NewModError")
-	assert_eq(label.autowrap_mode, TextServer.AUTOWRAP_WORD_SMART)
+	assert_eq(label.autowrap_mode, TextServer.AUTOWRAP_WORD)
 	game.free()
 
 
@@ -120,7 +120,8 @@ func test_game_entry_no_duplicate_load_data() -> void:
 
 
 func test_game_entry_handles_missing_icon_gracefully() -> void:
-	var tmp := DirAccess.create_temp("gumm_test_")
+	var tmp := "user://gumm_test_"
+	DirAccess.make_dir_recursive_absolute(tmp)
 	var descriptor := GameDescriptor.new()
 	descriptor.title = "Test Game"
 	descriptor.godot_version = "4.x"
@@ -146,7 +147,8 @@ func test_game_entry_handles_missing_icon_gracefully() -> void:
 #region ModEntry
 
 func test_mod_entry_hides_version_when_empty() -> void:
-	var tmp := DirAccess.create_temp("gumm_test_")
+	var tmp := "user://gumm_test_"
+	DirAccess.make_dir_recursive_absolute(tmp)
 	var descriptor := ModDescriptor.new()
 	descriptor.game = "Test"
 	descriptor.name = "Test Mod"
@@ -167,7 +169,8 @@ func test_mod_entry_hides_version_when_empty() -> void:
 
 
 func test_mod_entry_shows_version_when_present() -> void:
-	var tmp := DirAccess.create_temp("gumm_test_")
+	var tmp := "user://gumm_test_"
+	DirAccess.make_dir_recursive_absolute(tmp)
 	var descriptor := ModDescriptor.new()
 	descriptor.game = "Test"
 	descriptor.name = "Test Mod"

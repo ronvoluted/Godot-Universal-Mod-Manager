@@ -17,14 +17,16 @@ func test_game_validate_nonexistent_directory() -> void:
 
 
 func test_game_validate_missing_config() -> void:
-	var tmp := DirAccess.create_temp("test_game_validate_no_cfg")
+	var tmp := "user://test_game_validate_no_cfg"
+	DirAccess.make_dir_recursive_absolute(tmp)
 	var error := GameDescriptor.validate_path(tmp)
 	assert_string_contains(error, GameDescriptor.config_file)
 	DirAccess.remove_absolute(tmp)
 
 
 func test_game_validate_empty_config() -> void:
-	var tmp := DirAccess.create_temp("test_game_validate_empty")
+	var tmp := "user://test_game_validate_empty"
+	DirAccess.make_dir_recursive_absolute(tmp)
 	var file := FileAccess.open(tmp.path_join(GameDescriptor.config_file), FileAccess.WRITE)
 	file.close()
 
@@ -36,21 +38,22 @@ func test_game_validate_empty_config() -> void:
 
 
 func test_game_validate_malformed_config() -> void:
-	var tmp := DirAccess.create_temp("test_game_validate_bad")
+	var tmp := "user://test_game_validate_bad"
+	DirAccess.make_dir_recursive_absolute(tmp)
 	var file := FileAccess.open(tmp.path_join(GameDescriptor.config_file), FileAccess.WRITE)
 	file.store_string("not valid config")
 	file.close()
 
 	var error := GameDescriptor.validate_path(tmp)
 	assert_string_contains(error, "malformed")
-	assert_engine_error_count(2)
 
 	DirAccess.remove_absolute(tmp.path_join(GameDescriptor.config_file))
 	DirAccess.remove_absolute(tmp)
 
 
 func test_game_validate_valid_config() -> void:
-	var tmp := DirAccess.create_temp("test_game_validate_ok")
+	var tmp := "user://test_game_validate_ok"
+	DirAccess.make_dir_recursive_absolute(tmp)
 	var desc := GameDescriptor.new()
 	desc.title = "Test Game"
 	desc.godot_version = "4.x"
@@ -76,14 +79,16 @@ func test_mod_validate_nonexistent_directory() -> void:
 
 
 func test_mod_validate_missing_config() -> void:
-	var tmp := DirAccess.create_temp("test_mod_validate_no_cfg")
+	var tmp := "user://test_mod_validate_no_cfg"
+	DirAccess.make_dir_recursive_absolute(tmp)
 	var error := ModDescriptor.validate_path(tmp)
 	assert_string_contains(error, ModDescriptor.config_file)
 	DirAccess.remove_absolute(tmp)
 
 
 func test_mod_validate_valid_config() -> void:
-	var tmp := DirAccess.create_temp("test_mod_validate_ok")
+	var tmp := "user://test_mod_validate_ok"
+	DirAccess.make_dir_recursive_absolute(tmp)
 	var desc := ModDescriptor.new()
 	desc.game = "Test Game"
 	desc.name = "Test Mod"

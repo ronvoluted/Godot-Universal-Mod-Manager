@@ -25,7 +25,7 @@ func test_mod_entry_toggle_active_emits_signal() -> void:
 	var entry := preload("res://Nodes/ModEntry.tscn").instantiate()
 	add_child_autofree(entry)
 
-	var mod := ModData.new()
+	var mod := ModData.new({})
 	mod.active = false
 	entry.data = mod
 
@@ -40,7 +40,7 @@ func test_mod_entry_toggle_active_sets_metadata() -> void:
 	var entry := preload("res://Nodes/ModEntry.tscn").instantiate()
 	add_child_autofree(entry)
 
-	var mod := ModData.new()
+	var mod := ModData.new({})
 	mod.active = true
 	entry.data = mod
 

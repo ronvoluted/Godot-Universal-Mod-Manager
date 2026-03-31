@@ -9,7 +9,8 @@ func test_load_config_returns_null_for_missing_file() -> void:
 
 
 func test_load_config_returns_null_for_empty_file() -> void:
-	var tmp_dir := DirAccess.create_temp("test_load_config_empty")
+	var tmp_dir := "user://test_load_config_empty"
+	DirAccess.make_dir_recursive_absolute(tmp_dir)
 	var file := FileAccess.open(tmp_dir.path_join("test.cfg"), FileAccess.WRITE)
 	file.close()
 
@@ -21,7 +22,8 @@ func test_load_config_returns_null_for_empty_file() -> void:
 
 
 func test_load_config_returns_config_file_for_valid_file() -> void:
-	var tmp_dir := DirAccess.create_temp("test_load_config_valid")
+	var tmp_dir := "user://test_load_config_valid"
+	DirAccess.make_dir_recursive_absolute(tmp_dir)
 	var cfg := ConfigFile.new()
 	cfg.set_value("test", "key", "value")
 	cfg.save(tmp_dir.path_join("test.cfg"))
@@ -37,7 +39,8 @@ func test_load_config_returns_config_file_for_valid_file() -> void:
 # -- Descriptor.save_config --
 
 func test_save_config_writes_file_successfully() -> void:
-	var tmp_dir := DirAccess.create_temp("test_save_config")
+	var tmp_dir := "user://test_save_config"
+	DirAccess.make_dir_recursive_absolute(tmp_dir)
 	var cfg := ConfigFile.new()
 	cfg.set_value("section", "key", 42)
 
@@ -64,7 +67,8 @@ func test_save_config_returns_error_for_invalid_path() -> void:
 # -- Base load_data/save_data delegates to subclass fields --
 
 func test_base_load_data_populates_game_fields() -> void:
-	var tmp_dir := DirAccess.create_temp("test_base_load_game")
+	var tmp_dir := "user://test_base_load_game"
+	DirAccess.make_dir_recursive_absolute(tmp_dir)
 	var cfg := ConfigFile.new()
 	cfg.set_value("Godot Game", "title", "My Game")
 	cfg.set_value("Godot Game", "godot_version", "4.x")
@@ -82,7 +86,8 @@ func test_base_load_data_populates_game_fields() -> void:
 
 
 func test_base_save_data_writes_mod_fields() -> void:
-	var tmp_dir := DirAccess.create_temp("test_base_save_mod")
+	var tmp_dir := "user://test_base_save_mod"
+	DirAccess.make_dir_recursive_absolute(tmp_dir)
 	var desc := ModDescriptor.new()
 	desc.game = "Test"
 	desc.name = "Mod"
