@@ -6,7 +6,7 @@ var directory_mode: int = -1
 var entry_to_delete: Control
 
 func _ready() -> void:
-	for game in Registry.games:
+	for game: Registry.GameData in Registry.games:
 		add_game_entry(game)
 
 func on_add_game_entry() -> void:
@@ -29,7 +29,7 @@ func validate_add() -> void:
 	
 	var data := GameDescriptor.new()
 	data.load_data(%ImportPath.text)
-	for game in %GameList.get_children():
+	for game: Node in %GameList.get_children():
 		if game.entry.title == data.title:
 			set_add_error("Game already on the list. Delete it first.")
 			return
@@ -78,7 +78,7 @@ func validate_create() -> void:
 		set_create_error("Title can't be empty.")
 		return
 	
-	for game in %GameList.get_children():
+	for game: Node in %GameList.get_children():
 		if game.entry.title == %CreateTitle.text:
 			set_create_error("Game already on the list.")
 			return

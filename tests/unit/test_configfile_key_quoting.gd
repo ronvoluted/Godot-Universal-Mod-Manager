@@ -12,7 +12,7 @@ func before_each():
 func after_each():
 	var dir := DirAccess.open(tmp_dir)
 	if dir:
-		for file in dir.get_files():
+		for file: String in dir.get_files():
 			DirAccess.remove_absolute(tmp_dir.path_join(file))
 	DirAccess.remove_absolute(tmp_dir)
 

@@ -54,7 +54,7 @@ func test_load_threaded_get_returns_resource():
 
 	# Poll until loaded (mirrors the pattern used in GUMM_mod_loader)
 	var resource: Resource = null
-	for i in 1000:
+	for i: int in 1000:
 		var status := ResourceLoader.load_threaded_get_status(path)
 		if status == ResourceLoader.THREAD_LOAD_LOADED:
 			resource = ResourceLoader.load_threaded_get(path)
@@ -118,7 +118,7 @@ func test_threaded_load_matches_sync_load():
 	# Threaded load
 	ResourceLoader.load_threaded_request(path)
 	var threaded_resource: Resource = null
-	for i in 1000:
+	for i: int in 1000:
 		var status := ResourceLoader.load_threaded_get_status(path)
 		if status == ResourceLoader.THREAD_LOAD_LOADED:
 			threaded_resource = ResourceLoader.load_threaded_get(path)

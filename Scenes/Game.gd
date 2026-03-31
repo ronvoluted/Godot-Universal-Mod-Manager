@@ -9,7 +9,7 @@ var entry_to_delete: Control
 func _ready() -> void:
 	var entry_path: String = get_tree().get_meta(&"current_game", "")
 	
-	for meta in Registry.games:
+	for meta: Registry.GameData in Registry.games:
 		if meta.entry_path == entry_path:
 			game_metadata = meta
 			break
@@ -17,7 +17,7 @@ func _ready() -> void:
 	game_data = game_metadata.entry
 	
 	var new_missing: bool
-	for mod in game_metadata.installed_mods:
+	for mod: Registry.GameData.ModData in game_metadata.installed_mods:
 		var active := mod.active
 		add_mod_entry(mod)
 		if not mod.active:
@@ -263,7 +263,7 @@ func get_override_path() -> String:
 	return game_metadata.game_path.path_join("override.cfg")
 
 func get_mod_by_name(mod_name: String) -> Control:
-	for entry in %ModList.get_children():
+	for entry: Node in %ModList.get_children():
 		if entry.entry.name == mod_name:
 			return entry
 	return null
