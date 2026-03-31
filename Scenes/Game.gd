@@ -18,7 +18,7 @@ func _ready() -> void:
 	get_tree().scene_changed.connect(_on_scene_changed, CONNECT_ONE_SHOT)
 
 func _on_scene_changed(_scene_root: Node) -> void:
-	var new_missing: bool
+	var new_missing := false
 	for mod: Registry.GameData.ModData in game_metadata.installed_mods:
 		add_mod_entry(mod)
 		if not mod.active:
@@ -240,21 +240,17 @@ func toggle_mods(button_pressed: bool) -> void:
 		var config := ConfigFile.new()
 		config.load(override_file)
 
-		var deleted: bool
+		var deleted := false
 		var config_sections := config.get_sections()
 		if config_sections.size() == 1 or config_sections.size() == 2:
 			match game_data.godot_version:
 				"2.x", "3.x":
-					var has: int
-					has += int("application" in config_sections)
-					has += int("gumm" in config_sections)
+					var has := int("application" in config_sections) + int("gumm" in config_sections)
 					if has == config_sections.size() and config.get_section_keys("application").size() == 1:
 						DirAccess.remove_absolute(override_file)
 						deleted = true
 				"4.x":
-					var has: int
-					has += int("autoload" in config_sections)
-					has += int("gumm" in config_sections)
+					var has := int("autoload" in config_sections) + int("gumm" in config_sections)
 					if has == config_sections.size() and config.get_section_keys("autoload").size() == 1:
 						DirAccess.remove_absolute(override_file)
 						deleted = true
