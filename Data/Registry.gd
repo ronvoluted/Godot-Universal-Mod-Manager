@@ -57,36 +57,44 @@ class GameData:
 	static var mod_loader_scene := "GUMM_mod_loader.tscn"
 
 	class ModData:
+		static var _defaults := {load_path = "", active = false}
+
 		var load_path: String
 		var active: bool
 		var entry: ModDescriptor
-		
+
 		func _init(data: Dictionary) -> void:
-			load_path = data.load_path
-			active = data.active
-			
+			var config := _defaults.duplicate()
+			config.merge(data, true)
+			load_path = config.load_path
+			active = config.active
+
 			entry = ModDescriptor.new()
 			if not entry.load_data(load_path):
 				active = false
-		
+
 		func get_var() -> Dictionary:
 			return {load_path = load_path, active = active}
 	
+	static var _defaults := {entry_path = "", game_path = "", installed_mods = []}
+
 	var entry: GameDescriptor
 	var entry_path: String
 	var game_path: String
 	var mods_enabled: bool
 	var installed_mods: Array[ModData]
-	
+
 	func _init(data: Dictionary) -> void:
-		entry_path = data.entry_path
-		game_path = data.game_path
+		var config := _defaults.duplicate()
+		config.merge(data, true)
+		entry_path = config.entry_path
+		game_path = config.game_path
 		mods_enabled = FileAccess.file_exists(game_path.path_join(mod_loader_scene))
-		
+
 		entry = GameDescriptor.new()
 		entry.load_data(entry_path)
-		
-		for mod in data.installed_mods:
+
+		for mod in config.installed_mods:
 			installed_mods.append(ModData.new(mod))
 	
 	func get_var() -> Dictionary:
