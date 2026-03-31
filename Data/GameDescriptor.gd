@@ -1,23 +1,26 @@
 extends RefCounted
 class_name GameDescriptor
 
+static var config_file := "game.cfg"
+static var section := "Godot Game"
+
 var title: String
 var godot_version: String
 var main_scene: String
 
 func load_data(path: String) -> bool:
-	var config_file := ConfigFile.new()
-	if config_file.load(path.path_join("game.cfg")) != OK:
+	var cfg := ConfigFile.new()
+	if cfg.load(path.path_join(config_file)) != OK:
 		return false
-	
-	title = config_file.get_value("Godot Game", "title")
-	godot_version = config_file.get_value("Godot Game", "godot_version")
-	main_scene = config_file.get_value("Godot Game", "main_scene")
+
+	title = cfg.get_value(section, "title")
+	godot_version = cfg.get_value(section, "godot_version")
+	main_scene = cfg.get_value(section, "main_scene")
 	return true
 
 func save_data(path: String):
-	var config_file := ConfigFile.new()
-	config_file.set_value("Godot Game", "title", title)
-	config_file.set_value("Godot Game", "godot_version", godot_version)
-	config_file.set_value("Godot Game", "main_scene", main_scene)
-	config_file.save(path.path_join("game.cfg"))
+	var cfg := ConfigFile.new()
+	cfg.set_value(section, "title", title)
+	cfg.set_value(section, "godot_version", godot_version)
+	cfg.set_value(section, "main_scene", main_scene)
+	cfg.save(path.path_join(config_file))

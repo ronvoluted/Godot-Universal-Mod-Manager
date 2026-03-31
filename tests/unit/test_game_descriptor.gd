@@ -7,6 +7,14 @@ func before_each():
 	descriptor = GameDescriptor.new()
 
 
+func test_static_config_file():
+	assert_eq(GameDescriptor.config_file, "game.cfg")
+
+
+func test_static_section():
+	assert_eq(GameDescriptor.section, "Godot Game")
+
+
 func test_initial_properties_are_empty():
 	assert_eq(descriptor.title, "")
 	assert_eq(descriptor.godot_version, "")
@@ -30,7 +38,7 @@ func test_save_and_load_roundtrip():
 	assert_eq(loaded.godot_version, "4.3")
 	assert_eq(loaded.main_scene, "res://Main.tscn")
 
-	DirAccess.remove_absolute(tmp_dir.path_join("game.cfg"))
+	DirAccess.remove_absolute(tmp_dir.path_join(GameDescriptor.config_file))
 	DirAccess.remove_absolute(tmp_dir)
 
 

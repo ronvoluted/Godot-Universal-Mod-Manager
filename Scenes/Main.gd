@@ -23,8 +23,8 @@ func validate_add() -> void:
 		set_add_error("Descriptor path can't be empty.")
 		return
 	
-	if not FileAccess.file_exists(%ImportPath.text.path_join("game.cfg")):
-		set_add_error("Descriptor directory invalid. Missing \"game.cfg\".")
+	if not FileAccess.file_exists(%ImportPath.text.path_join(GameDescriptor.config_file)):
+		set_add_error("Descriptor directory invalid. Missing \"%s\"." % GameDescriptor.config_file)
 		return
 	
 	var data := GameDescriptor.new()
@@ -57,7 +57,7 @@ func import_game_entry() -> void:
 		
 		var new_folder: String = "user://Games/" + entry.title.validate_filename()
 		DirAccess.make_dir_recursive_absolute(new_folder)
-		DirAccess.copy_absolute(entry_folder.path_join("game.cfg"), new_folder.path_join("game.cfg"))
+		DirAccess.copy_absolute(entry_folder.path_join(GameDescriptor.config_file), new_folder.path_join(GameDescriptor.config_file))
 		DirAccess.copy_absolute(entry_folder.path_join("icon.png"), new_folder.path_join("icon.png"))
 		
 		entry_folder = new_folder

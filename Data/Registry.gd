@@ -54,6 +54,8 @@ func smart_resize_to_80(image: Image):
 		get_tree().quit(1) # impossible
 
 class GameData:
+	static var mod_loader_scene := "GUMM_mod_loader.tscn"
+
 	class ModData:
 		var load_path: String
 		var active: bool
@@ -79,7 +81,7 @@ class GameData:
 	func _init(data: Dictionary) -> void:
 		entry_path = data.entry_path
 		game_path = data.game_path
-		mods_enabled = FileAccess.file_exists(game_path.path_join("GUMM_mod_loader.tscn"))
+		mods_enabled = FileAccess.file_exists(game_path.path_join(mod_loader_scene))
 		
 		entry = GameDescriptor.new()
 		entry.load_data(entry_path)

@@ -46,8 +46,8 @@ func try_recover(dir: String) -> void:
 		shoot_error.call_deferred("The provided directory does not exist.")
 		return
 	
-	if not FileAccess.file_exists(dir.path_join("mod.cfg")):
-		shoot_error.call_deferred("No \"mod.cfg\" found at the given location.")
+	if not FileAccess.file_exists(dir.path_join(ModDescriptor.config_file)):
+		shoot_error.call_deferred("No \"%s\" found at the given location." % ModDescriptor.config_file)
 		return
 	
 	metadata.load_path = dir

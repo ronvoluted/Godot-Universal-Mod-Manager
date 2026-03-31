@@ -49,8 +49,8 @@ func import_mod_update() -> void:
 		set_import_error("The provided directory does not exist.")
 		return
 	
-	if not FileAccess.file_exists(%ImportModPath.text.path_join("mod.cfg")):
-		set_import_error("No \"mod.cfg\" found at the given location.")
+	if not FileAccess.file_exists(%ImportModPath.text.path_join(ModDescriptor.config_file)):
+		set_import_error("No \"%s\" found at the given location." % ModDescriptor.config_file)
 		return
 	
 	var mod_data := ModDescriptor.new()
@@ -216,7 +216,7 @@ func toggle_mods(button_pressed: bool) -> void:
 				config.erase_section("gumm")
 			config.save(override_file)
 		
-		DirAccess.remove_absolute(game_metadata.game_path.path_join("GUMM_mod_loader.tscn"))
+		DirAccess.remove_absolute(game_metadata.game_path.path_join(Registry.GameData.mod_loader_scene))
 
 func apply_mods():
 	var override_file := get_override_path()
@@ -226,11 +226,11 @@ func apply_mods():
 	
 	match game_data.godot_version:
 		"2.x":
-			config.set_value("application", "main_scene", "res://GUMM_mod_loader.tscn")
+			config.set_value("application", "main_scene", "res://" + Registry.GameData.mod_loader_scene)
 		"3.x", "4.x":
-			config.set_value("application", "run/main_scene", "res://GUMM_mod_loader.tscn")
+			config.set_value("application", "run/main_scene", "res://" + Registry.GameData.mod_loader_scene)
 	
-	DirAccess.copy_absolute("res://System/%s/GUMM_mod_loader.tscn" % game_data.godot_version, game_metadata.game_path.path_join("GUMM_mod_loader.tscn"))
+	DirAccess.copy_absolute("res://System/%s/%s" % [game_data.godot_version, Registry.GameData.mod_loader_scene], game_metadata.game_path.path_join(Registry.GameData.mod_loader_scene))
 	config.set_value("gumm", "main_scene", game_data.main_scene)
 	config.set_value("gumm", "mod_list", game_metadata.installed_mods.filter(func(mod): return mod.active).map(func(mod): return mod.load_path))
 	

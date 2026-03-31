@@ -1,6 +1,9 @@
 extends RefCounted
 class_name ModDescriptor
 
+static var config_file := "mod.cfg"
+static var section := "Godot Mod"
+
 var game: String
 var name: String
 var description: String
@@ -8,21 +11,21 @@ var version: String
 var dependencies: PackedStringArray
 
 func load_data(path: String) -> bool:
-	var config_file := ConfigFile.new()
-	if config_file.load(path.path_join("mod.cfg")) != OK:
+	var cfg := ConfigFile.new()
+	if cfg.load(path.path_join(config_file)) != OK:
 		return false
-	
-	game = config_file.get_value("Godot Mod", "game")
-	name = config_file.get_value("Godot Mod", "name")
-	description = config_file.get_value("Godot Mod", "description")
-	version = config_file.get_value("Godot Mod", "version")
-	
+
+	game = cfg.get_value(section, "game")
+	name = cfg.get_value(section, "name")
+	description = cfg.get_value(section, "description")
+	version = cfg.get_value(section, "version")
+
 	return true
 
 func save_data(path: String):
-	var config_file := ConfigFile.new()
-	config_file.set_value("Godot Mod", "game", game)
-	config_file.set_value("Godot Mod", "name", name)
-	config_file.set_value("Godot Mod", "description", description)
-	config_file.set_value("Godot Mod", "version", version)
-	config_file.save(path.path_join("mod.cfg"))
+	var cfg := ConfigFile.new()
+	cfg.set_value(section, "game", game)
+	cfg.set_value(section, "name", name)
+	cfg.set_value(section, "description", description)
+	cfg.set_value(section, "version", version)
+	cfg.save(path.path_join(config_file))

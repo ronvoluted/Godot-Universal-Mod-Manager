@@ -7,6 +7,14 @@ func before_each():
 	descriptor = ModDescriptor.new()
 
 
+func test_static_config_file():
+	assert_eq(ModDescriptor.config_file, "mod.cfg")
+
+
+func test_static_section():
+	assert_eq(ModDescriptor.section, "Godot Mod")
+
+
 func test_initial_properties_are_empty():
 	assert_eq(descriptor.game, "")
 	assert_eq(descriptor.name, "")
@@ -33,7 +41,7 @@ func test_save_and_load_roundtrip():
 	assert_eq(loaded.description, "A cool mod")
 	assert_eq(loaded.version, "1.0.0")
 
-	DirAccess.remove_absolute(tmp_dir.path_join("mod.cfg"))
+	DirAccess.remove_absolute(tmp_dir.path_join(ModDescriptor.config_file))
 	DirAccess.remove_absolute(tmp_dir)
 
 
