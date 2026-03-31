@@ -31,10 +31,9 @@ func validate_add() -> void:
 	
 	var data := GameDescriptor.new()
 	data.load_data(%ImportPath.text)
-	for game: Node in %GameList.get_children():
-		if game.entry.title == data.title:
-			set_add_error("Game already on the list. Delete it first.")
-			return
+	if %GameList.get_children().find_custom(func(game: Node) -> bool: return game.entry.title == data.title) != -1:
+		set_add_error("Game already on the list. Delete it first.")
+		return
 	
 	if %ImportGame.text.is_empty():
 		set_add_error("Game directory name can't be empty.")
@@ -84,10 +83,9 @@ func validate_create() -> void:
 		set_create_error("Title can't be empty.")
 		return
 	
-	for game: Node in %GameList.get_children():
-		if game.entry.title == %CreateTitle.text:
-			set_create_error("Game already on the list.")
-			return
+	if %GameList.get_children().find_custom(func(game: Node) -> bool: return game.entry.title == %CreateTitle.text) != -1:
+		set_create_error("Game already on the list.")
+		return
 	
 	if not %CreateIcon.text.is_empty():
 		if not %CreateIcon.text.get_extension() in Registry.ICON_FORMATS:

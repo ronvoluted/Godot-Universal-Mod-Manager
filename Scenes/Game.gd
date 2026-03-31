@@ -9,10 +9,8 @@ var entry_to_delete: Control
 func _ready() -> void:
 	var entry_path: String = get_tree().get_meta(&"current_game", "")
 	
-	for meta: Registry.GameData in Registry.games:
-		if meta.entry_path == entry_path:
-			game_metadata = meta
-			break
+	var game_index := Registry.games.find_custom(func(meta: Registry.GameData) -> bool: return meta.entry_path == entry_path)
+	game_metadata = Registry.games[game_index]
 	
 	game_data = game_metadata.entry
 	
@@ -164,10 +162,9 @@ func refresh_entry(old_entry: Control) -> void:
 	old_entry.queue_free()
 
 func get_mod_by_name(mod_name: String) -> Control:
-	for entry: Node in %ModList.get_children():
-		if entry.entry.name == mod_name:
-			return entry
-	return null
+	var children := %ModList.get_children()
+	var index := children.find_custom(func(entry: Node) -> bool: return entry.entry.name == mod_name)
+	return children[index] if index != -1 else null
 
 #endregion
 

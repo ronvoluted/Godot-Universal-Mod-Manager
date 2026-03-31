@@ -25,10 +25,10 @@ func add_new_game_entry(entry_path: String, game_path: String) -> GameData:
 func add_new_mod_entry(game: GameData, load_path: String) -> GameData.ModData:
 	var mod := GameData.ModData.new({load_path = load_path, active = true})
 	
-	for mod_meta: GameData.ModData in game.installed_mods:
-		if mod_meta.entry.name == mod.entry.name:
-			mod_meta.load_path = load_path
-			return mod_meta
+	var existing_index := game.installed_mods.find_custom(func(mod_meta: GameData.ModData) -> bool: return mod_meta.entry.name == mod.entry.name)
+	if existing_index != -1:
+		game.installed_mods[existing_index].load_path = load_path
+		return game.installed_mods[existing_index]
 	
 	game.installed_mods.append(mod)
 	save_game_entry_list()
