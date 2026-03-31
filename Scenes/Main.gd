@@ -98,7 +98,7 @@ func validate_create() -> void:
 		return
 	
 	if not %CreateIcon.text.is_empty():
-		if not %CreateIcon.text.get_extension() in Registry.ICON_FORMATS:
+		if not %CreateIcon.text.has_extension(Registry.ICON_FORMATS):
 			set_create_error("Icon format invalid. Supported extensions: %s" % ", ".join(Registry.ICON_FORMATS))
 			return
 		
@@ -110,7 +110,7 @@ func validate_create() -> void:
 		set_create_error("Scene can't be empty.")
 		return
 	
-	if not %CreateScene.text.begins_with("res://") or not %CreateScene.text.get_extension() in ["tscn", "scn"]:
+	if not %CreateScene.text.begins_with("res://") or not %CreateScene.text.has_extension(["tscn", "scn"]):
 		set_create_error("Scene path needs to point to a scn/tscn file inside res://.")
 		return
 	

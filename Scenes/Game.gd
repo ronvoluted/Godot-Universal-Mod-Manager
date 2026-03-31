@@ -129,7 +129,7 @@ func create_mod_confirmed() -> void:
 	mod_data.version = %NewModVersion.text
 	mod_data.save_data(%NewModPath.text)
 
-	if not %IconPath.text.is_empty() and FileAccess.file_exists(%IconPath.text) and %IconPath.text.get_extension() in Registry.ICON_FORMATS:
+	if not %IconPath.text.is_empty() and FileAccess.file_exists(%IconPath.text) and %IconPath.text.has_extension(Registry.ICON_FORMATS):
 		var image := Image.load_from_file(%IconPath.text)
 		if image:
 			Registry.smart_resize_to_80(image)
@@ -206,7 +206,7 @@ func validate_new_mod() -> void:
 
 	set_create_error("")
 
-	if not %IconPath.disabled and (%IconPath.text.is_empty() or not FileAccess.file_exists(%IconPath.text) or not %IconPath.text.get_extension() in Registry.ICON_FORMATS):
+	if not %IconPath.disabled and (%IconPath.text.is_empty() or not FileAccess.file_exists(%IconPath.text) or not %IconPath.text.has_extension(Registry.ICON_FORMATS)):
 		set_create_warning("Icon path invalid. The mod will have no icon.")
 
 func set_create_error(error: String) -> void:
