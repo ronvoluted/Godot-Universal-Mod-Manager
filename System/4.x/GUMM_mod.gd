@@ -18,12 +18,16 @@ func load_texture(path: String) -> Texture2D:
 	return ImageTexture.create_from_image(Image.load_from_file(get_full_path(path)))
 
 func load_mp3(path: String) -> AudioStreamMP3:
-	var file := FileAccess.open(path, FileAccess.READ)
+	var full_path := get_full_path(path)
+	var file := FileAccess.open(full_path, FileAccess.READ)
+	if not file:
+		push_error("GUMM: Failed to open audio file: %s" % full_path)
+		return null
 	var data := file.get_buffer(file.get_length())
-	
+
 	var stream := AudioStreamMP3.new()
 	stream.data = data
-	
+
 	return stream
 
 func load_resource(path: String) -> Resource:

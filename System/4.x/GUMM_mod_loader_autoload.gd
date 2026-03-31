@@ -6,7 +6,7 @@ func _enter_tree() -> void:
 	var mod_list: PackedStringArray = ProjectSettings.get_setting("gumm/mod_list")
 	for mod: String in mod_list:
 		load_mod(mod)
-	get_tree().set_meta("GUMM_mods", loaded_mods)
+	get_tree().set_meta(&"GUMM_mods", loaded_mods)
 
 func load_mod(mod_path: String) -> void:
 	var mod_cfg := ConfigFile.new()

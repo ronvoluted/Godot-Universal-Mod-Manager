@@ -3,25 +3,33 @@
 [sub_resource type="GDScript" id="1"]
 script/source = "extends Node
 
-var loaded_mods = []
+var loaded_mods: Array[RefCounted] = []
 
-func _ready():
-	var mod_list = ProjectSettings.get_setting(\"gumm/mod_list\")
-	for mod in mod_list:
+func _ready() -> void:
+	var mod_list: PackedStringArray = ProjectSettings.get_setting(\"gumm/mod_list\")
+	for mod: String in mod_list:
 		await load_mod(mod)
 
-	get_tree().set_meta(\"GUMM_mods\", loaded_mods)
+	get_tree().set_meta(&\"GUMM_mods\", loaded_mods)
 
 	var main_scene: String = ProjectSettings.get_setting(\"gumm/main_scene\")
 	ResourceLoader.load_threaded_request(main_scene)
-	var scene := await _poll_threaded_load(main_scene)
-	if scene:
-		get_tree().change_scene_to_packed(scene)
-	else:
-		push_error(\"GUMM: Failed to load main scene: %s\" % main_scene)
-		get_tree().change_scene_to_file(main_scene)
+	while true:
+		var status := ResourceLoader.load_threaded_get_status(main_scene)
+		match status:
+			ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+				await get_tree().process_frame
+			ResourceLoader.THREAD_LOAD_LOADED:
+				get_tree().change_scene_to_packed(
+					ResourceLoader.load_threaded_get(main_scene) as PackedScene
+				)
+				return
+			_:
+				push_error(\"GUMM: Failed to load main scene: %s\" % main_scene)
+				get_tree().change_scene_to_file(main_scene)
+				return
 
-func load_mod(mod_path: String):
+func load_mod(mod_path: String) -> void:
 	var mod_cfg := ConfigFile.new()
 	mod_cfg.load(mod_path.path_join(\"mod.cfg\"))
 	print(\"Loading mod: \", mod_cfg.get_value(\"Godot Mod\", \"name\", \"[unknown]\"))
