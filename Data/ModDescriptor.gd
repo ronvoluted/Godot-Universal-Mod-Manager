@@ -10,21 +10,7 @@ var description: String
 var version: String
 var dependencies: PackedStringArray
 
-func load_data(path: String) -> bool:
-	var file_path := path.path_join(config_file)
-	if not FileAccess.file_exists(file_path):
-		push_warning("Mod descriptor not found: '%s'." % file_path)
-		return false
-	if FileAccess.get_size(file_path) == 0:
-		push_warning("Mod descriptor is empty: '%s'." % file_path)
-		return false
-
-	var cfg := ConfigFile.new()
-	var err := cfg.load(file_path)
-	if err != OK:
-		push_error("Failed to parse mod descriptor '%s' (error %d)." % [file_path, err])
-		return false
-
+func _read_fields(cfg: ConfigFile) -> void:
 	game = cfg.get_value(section, "game")
 	name = cfg.get_value(section, "name")
 	description = cfg.get_value(section, "description")
@@ -34,7 +20,23 @@ func load_data(path: String) -> bool:
 	else:
 		version = str(raw_version)
 
+func _write_fields(cfg: ConfigFile) -> void:
+	cfg.set_value(section, "game", game)
+	cfg.set_value(section, "name", name)
+	cfg.set_value(section, "description", description)
+	cfg.set_value(section, "version", version)
+
+func load_data(path: String) -> bool:
+	var cfg := Descriptor.load_config(path, config_file)
+	if not cfg or not cfg.has_section(section):
+		return false
+	_read_fields(cfg)
 	return true
+
+func save_data(path: String) -> Error:
+	var cfg := ConfigFile.new()
+	_write_fields(cfg)
+	return Descriptor.save_config(cfg, path, config_file)
 
 static func validate_path(path: String) -> String:
 	var error := Descriptor.validate_directory(path, config_file)
@@ -44,14 +46,3 @@ static func validate_path(path: String) -> String:
 	if not desc.load_data(path):
 		return "\"%s\" is malformed or unreadable." % config_file
 	return ""
-
-func save_data(path: String) -> Error:
-	var cfg := ConfigFile.new()
-	cfg.set_value(section, "game", game)
-	cfg.set_value(section, "name", name)
-	cfg.set_value(section, "description", description)
-	cfg.set_value(section, "version", version)
-	var err := cfg.save(path.path_join(config_file))
-	if err != OK:
-		push_error("Failed to save mod descriptor to '%s' (error %d)." % [path.path_join(config_file), err])
-	return err

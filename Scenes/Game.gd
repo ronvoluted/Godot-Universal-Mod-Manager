@@ -133,10 +133,7 @@ func create_mod_confirmed() -> void:
 	mod_data.save_data(%NewModPath.text)
 
 	if not %IconPath.text.is_empty() and FileAccess.file_exists(%IconPath.text) and %IconPath.text.has_extension(Icons.FORMATS):
-		var image := Image.load_from_file(%IconPath.text)
-		if image:
-			Icons.resize_to_80(image)
-			image.save_png(%NewModPath.text.path_join("icon.png"))
+		Icons.save_icon(%IconPath.text, %NewModPath.text)
 
 	if entry_to_update:
 		refresh_entry(entry_to_update)

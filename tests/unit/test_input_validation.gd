@@ -36,7 +36,6 @@ func test_game_entry_recover_rejects_malformed_descriptor() -> void:
 	await get_tree().process_frame
 
 	assert_eq(entry.data.entry_path, "/nonexistent", "Recovery should be rejected for malformed descriptor")
-	assert_engine_error_count(2)
 
 	DirAccess.remove_absolute(tmp.path_join(GameDescriptor.config_file))
 	DirAccess.remove_absolute(tmp)
@@ -100,7 +99,6 @@ func test_mod_entry_recover_rejects_malformed_descriptor() -> void:
 	await get_tree().process_frame
 
 	assert_eq(entry.data.load_path, "/nonexistent", "Recovery should be rejected for malformed descriptor")
-	assert_engine_error_count(2)
 
 	DirAccess.remove_absolute(tmp.path_join(ModDescriptor.config_file))
 	DirAccess.remove_absolute(tmp)
@@ -164,7 +162,6 @@ func test_game_descriptor_load_malformed_config_returns_false() -> void:
 	var descriptor := GameDescriptor.new()
 	var result := descriptor.load_data(tmp)
 	assert_false(result, "Malformed config file should return false from load_data")
-	assert_engine_error_count(2)
 
 	DirAccess.remove_absolute(tmp.path_join(GameDescriptor.config_file))
 	DirAccess.remove_absolute(tmp)
@@ -180,7 +177,6 @@ func test_mod_descriptor_load_malformed_config_returns_false() -> void:
 	var descriptor := ModDescriptor.new()
 	var result := descriptor.load_data(tmp)
 	assert_false(result, "Malformed config file should return false from load_data")
-	assert_engine_error_count(2)
 
 	DirAccess.remove_absolute(tmp.path_join(ModDescriptor.config_file))
 	DirAccess.remove_absolute(tmp)

@@ -148,9 +148,7 @@ func create_game_entry() -> void:
 	descriptor.save_data(entry_path)
 
 	if not %CreateIcon.text.is_empty():
-		var image := Image.load_from_file(%CreateIcon.text)
-		Icons.resize_to_80(image)
-		image.save_png(entry_path.path_join("icon.png"))
+		Icons.save_icon(%CreateIcon.text, entry_path)
 
 	var entry_data := Registry.add_new_game_entry(entry_path, %CreateDirectory.text.simplify_path())
 	add_game_entry(entry_data)

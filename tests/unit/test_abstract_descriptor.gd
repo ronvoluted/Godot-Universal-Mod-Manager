@@ -27,21 +27,35 @@ func test_mod_descriptor_overrides_section() -> void:
 	assert_eq(ModDescriptor.section, "Godot Mod")
 
 
-func test_game_descriptor_implements_load_data() -> void:
+func test_game_descriptor_implements_read_fields() -> void:
 	var game := GameDescriptor.new()
-	assert_has_method(game, "load_data")
+	assert_has_method(game, "_read_fields")
 
 
-func test_game_descriptor_implements_save_data() -> void:
+func test_game_descriptor_implements_write_fields() -> void:
 	var game := GameDescriptor.new()
-	assert_has_method(game, "save_data")
+	assert_has_method(game, "_write_fields")
 
 
-func test_mod_descriptor_implements_load_data() -> void:
+func test_mod_descriptor_implements_read_fields() -> void:
 	var mod := ModDescriptor.new()
+	assert_has_method(mod, "_read_fields")
+
+
+func test_mod_descriptor_implements_write_fields() -> void:
+	var mod := ModDescriptor.new()
+	assert_has_method(mod, "_write_fields")
+
+
+func test_load_data_inherited_from_descriptor() -> void:
+	var game := GameDescriptor.new()
+	var mod := ModDescriptor.new()
+	assert_has_method(game, "load_data")
 	assert_has_method(mod, "load_data")
 
 
-func test_mod_descriptor_implements_save_data() -> void:
+func test_save_data_inherited_from_descriptor() -> void:
+	var game := GameDescriptor.new()
 	var mod := ModDescriptor.new()
+	assert_has_method(game, "save_data")
 	assert_has_method(mod, "save_data")

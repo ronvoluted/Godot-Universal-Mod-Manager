@@ -12,6 +12,13 @@ static func load_texture(directory: String) -> ImageTexture:
 		return null
 	return ImageTexture.create_from_image(image)
 
+static func save_icon(source_path: String, dest_dir: String) -> void:
+	var image := Image.load_from_file(source_path)
+	if not image:
+		return
+	resize_to_80(image)
+	image.save_png(dest_dir.path_join("icon.png"))
+
 static func resize_to_80(image: Image) -> void:
 	var w := image.get_width()
 	var h := image.get_height()
