@@ -94,15 +94,14 @@ func test_core_scripts_have_typed_parameters() -> void:
 				)
 
 
-func test_directory_rules_suppress_legacy_scripts() -> void:
-	var config := ConfigFile.new()
-	var err := config.load("res://project.godot")
-	assert_eq(err, OK)
-
-	var rules: Dictionary = config.get_value("debug", "gdscript/warnings/directory_rules", {})
-	assert_true(rules.has("res://System/2.x/"), "Should suppress warnings for System/2.x/")
-	assert_true(rules.has("res://System/3.x/"), "Should suppress warnings for System/3.x/")
-	assert_true(rules.has("res://Examples/"), "Should suppress warnings for Examples/")
+func test_gdignore_excludes_legacy_dirs_from_editor() -> void:
+	# .gdignore is the primary mechanism preventing the 4.6 editor from parsing
+	# incompatible 2.x/3.x GDScript. Warning rules can't help here — legacy
+	# syntax would cause parse errors, not just typing warnings.
+	assert_true(FileAccess.file_exists("res://System/.gdignore"),
+		"System/.gdignore must exist to hide legacy scripts from 4.6 editor")
+	assert_true(FileAccess.file_exists("res://Examples/.gdignore"),
+		"Examples/.gdignore must exist to hide example projects from editor")
 
 
 func _split_params(params_str: String) -> PackedStringArray:
