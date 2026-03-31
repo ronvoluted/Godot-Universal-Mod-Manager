@@ -227,57 +227,75 @@ func open_game_directory() -> void:
 
 func toggle_mods(button_pressed: bool) -> void:
 	game_metadata.mods_enabled = button_pressed
-	
+
 	if button_pressed:
 		apply_mods()
 	else:
 		var override_file := get_override_path()
 		var config := ConfigFile.new()
 		config.load(override_file)
-		
+
 		var deleted: bool
 		var config_sections := config.get_sections()
 		if config_sections.size() == 1 or config_sections.size() == 2:
-			var has: int
-			has += int("application" in config_sections)
-			has += int("gumm" in config_sections)
-			
-			if has == config_sections.size():
-				match game_data.godot_version:
-						"2.x", "3.x", "4.x":
-							if config.get_section_keys("application").size() == 1:
-								DirAccess.remove_absolute(override_file)
-								deleted = true
-		
+			match game_data.godot_version:
+				"2.x", "3.x":
+					var has: int
+					has += int("application" in config_sections)
+					has += int("gumm" in config_sections)
+					if has == config_sections.size() and config.get_section_keys("application").size() == 1:
+						DirAccess.remove_absolute(override_file)
+						deleted = true
+				"4.x":
+					var has: int
+					has += int("autoload" in config_sections)
+					has += int("gumm" in config_sections)
+					if has == config_sections.size() and config.get_section_keys("autoload").size() == 1:
+						DirAccess.remove_absolute(override_file)
+						deleted = true
+
 		if not deleted:
 			match game_data.godot_version:
 				"2.x":
 					config.erase_section_key("application", "main_scene")
-				"3.x", "4.x":
+				"3.x":
 					config.erase_section_key("application", "run/main_scene")
-			
+				"4.x":
+					config.erase_section_key("autoload", "GUMM")
+					if config.has_section("autoload") and config.get_section_keys("autoload").is_empty():
+						config.erase_section("autoload")
+
 			if config.has_section("gumm"):
 				config.erase_section("gumm")
 			config.save(override_file)
-		
-		DirAccess.remove_absolute(game_metadata.game_path.path_join(Registry.GameData.mod_loader_scene))
+
+		match game_data.godot_version:
+			"2.x", "3.x":
+				DirAccess.remove_absolute(game_metadata.game_path.path_join(Registry.GameData.mod_loader_scene))
+			"4.x":
+				DirAccess.remove_absolute(game_metadata.game_path.path_join(Registry.GameData.mod_loader_autoload))
 
 func apply_mods() -> void:
 	var override_file := get_override_path()
 	var config := ConfigFile.new()
 	if FileAccess.file_exists(override_file):
 		config.load(override_file)
-	
+
 	match game_data.godot_version:
 		"2.x":
 			config.set_value("application", "main_scene", "res://" + Registry.GameData.mod_loader_scene)
-		"3.x", "4.x":
+			DirAccess.copy_absolute("res://System/2.x/%s" % Registry.GameData.mod_loader_scene, game_metadata.game_path.path_join(Registry.GameData.mod_loader_scene))
+			config.set_value("gumm", "main_scene", game_data.main_scene)
+		"3.x":
 			config.set_value("application", "run/main_scene", "res://" + Registry.GameData.mod_loader_scene)
-	
-	DirAccess.copy_absolute("res://System/%s/%s" % [game_data.godot_version, Registry.GameData.mod_loader_scene], game_metadata.game_path.path_join(Registry.GameData.mod_loader_scene))
-	config.set_value("gumm", "main_scene", game_data.main_scene)
+			DirAccess.copy_absolute("res://System/3.x/%s" % Registry.GameData.mod_loader_scene, game_metadata.game_path.path_join(Registry.GameData.mod_loader_scene))
+			config.set_value("gumm", "main_scene", game_data.main_scene)
+		"4.x":
+			DirAccess.copy_absolute("res://System/4.x/" + Registry.GameData.mod_loader_autoload, game_metadata.game_path.path_join(Registry.GameData.mod_loader_autoload))
+			config.set_value("autoload", "GUMM", "*res://" + Registry.GameData.mod_loader_autoload)
+
 	config.set_value("gumm", "mod_list", game_metadata.installed_mods.filter(func(mod: Registry.GameData.ModData) -> bool: return mod.active).map(func(mod: Registry.GameData.ModData) -> String: return mod.load_path))
-	
+
 	config.save(override_file)
 
 func get_override_path() -> String:

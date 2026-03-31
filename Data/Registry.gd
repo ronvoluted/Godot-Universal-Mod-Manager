@@ -58,6 +58,7 @@ func smart_resize_to_80(image: Image) -> void:
 
 class GameData:
 	static var mod_loader_scene := "GUMM_mod_loader.tscn"
+	static var mod_loader_autoload := "GUMM_mod_loader_autoload.gd"
 
 	class ModData:
 		static var _defaults: Dictionary[StringName, Variant] = {load_path = "", active = false}
@@ -92,7 +93,7 @@ class GameData:
 		config.merge(data, true)
 		entry_path = config.entry_path
 		game_path = config.game_path
-		mods_enabled = FileAccess.file_exists(game_path.path_join(mod_loader_scene))
+		mods_enabled = FileAccess.file_exists(game_path.path_join(mod_loader_scene)) or FileAccess.file_exists(game_path.path_join(mod_loader_autoload))
 
 		entry = GameDescriptor.new()
 		entry.load_data(entry_path)
