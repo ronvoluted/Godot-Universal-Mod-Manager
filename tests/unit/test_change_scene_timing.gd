@@ -1,100 +1,71 @@
 extends GutTest
 ## Verify change_scene_to_file/change_scene_to_packed timing safety (GH-78988).
 ## Since Godot 4, the current scene is freed immediately on scene change.
-## These tests ensure no code in open_game() or go_back() executes after the
-## scene change call that could reference the now-freed previous scene.
+## These tests ensure SceneLoader.change_scene returns immediately after the
+## scene change call, and that open_game/go_back delegate to SceneLoader.
 
 
-# -- Structural verification: open_game in Main.gd --
+# -- SceneLoader structural verification --
 
-func test_open_game_returns_immediately_after_change_scene_to_packed() -> void:
-	var script: GDScript = load("res://Scenes/Main.gd")
+func test_scene_loader_returns_after_change_scene_to_packed() -> void:
+	var script: GDScript = load("res://Data/SceneLoader.gd")
 	var source: String = script.source_code
 	var lines: PackedStringArray = source.split("\n")
 
 	var found_change_scene_packed := false
 	for i: int in lines.size():
 		var stripped: String = lines[i].strip_edges()
-		if stripped.begins_with("get_tree().change_scene_to_packed("):
+		if stripped.begins_with("tree.change_scene_to_packed("):
 			var j: int = _skip_past_call(lines, i)
 			if j < lines.size():
 				assert_eq(lines[j].strip_edges(), "return",
-					"open_game: return must immediately follow change_scene_to_packed (line %d)" % (j + 1))
+					"SceneLoader: return must immediately follow change_scene_to_packed (line %d)" % (j + 1))
 			found_change_scene_packed = true
 
 	assert_true(found_change_scene_packed,
-		"Main.gd should contain a change_scene_to_packed call")
+		"SceneLoader.gd should contain a change_scene_to_packed call")
 
 
-func test_open_game_returns_immediately_after_change_scene_to_file() -> void:
-	var script: GDScript = load("res://Scenes/Main.gd")
+func test_scene_loader_returns_after_change_scene_to_file() -> void:
+	var script: GDScript = load("res://Data/SceneLoader.gd")
 	var source: String = script.source_code
 	var lines: PackedStringArray = source.split("\n")
 
 	for i: int in lines.size():
 		var stripped: String = lines[i].strip_edges()
-		if stripped.begins_with("get_tree().change_scene_to_file("):
+		if stripped.begins_with("tree.change_scene_to_file("):
 			assert_true(i + 1 < lines.size(),
-				"Main.gd: change_scene_to_file must not be the last line")
+				"SceneLoader.gd: change_scene_to_file must not be the last line")
 			assert_eq(lines[i + 1].strip_edges(), "return",
-				"open_game: return must immediately follow change_scene_to_file (line %d)" % (i + 2))
+				"SceneLoader: return must immediately follow change_scene_to_file (line %d)" % (i + 2))
 
 
-# -- Structural verification: go_back in Game.gd --
+# -- Delegation verification: Main.gd and Game.gd use SceneLoader --
 
-func test_go_back_returns_immediately_after_change_scene_to_packed() -> void:
-	var script: GDScript = load("res://Scenes/Game.gd")
-	var source: String = script.source_code
-	var lines: PackedStringArray = source.split("\n")
-
-	var found_change_scene_packed := false
-	for i: int in lines.size():
-		var stripped: String = lines[i].strip_edges()
-		if stripped.begins_with("get_tree().change_scene_to_packed("):
-			var j: int = _skip_past_call(lines, i)
-			if j < lines.size():
-				assert_eq(lines[j].strip_edges(), "return",
-					"go_back: return must immediately follow change_scene_to_packed (line %d)" % (j + 1))
-			found_change_scene_packed = true
-
-	assert_true(found_change_scene_packed,
-		"Game.gd should contain a change_scene_to_packed call")
-
-
-func test_go_back_returns_immediately_after_change_scene_to_file() -> void:
-	var script: GDScript = load("res://Scenes/Game.gd")
-	var source: String = script.source_code
-	var lines: PackedStringArray = source.split("\n")
-
-	for i: int in lines.size():
-		var stripped: String = lines[i].strip_edges()
-		if stripped.begins_with("get_tree().change_scene_to_file("):
-			assert_true(i + 1 < lines.size(),
-				"Game.gd: change_scene_to_file must not be the last line")
-			assert_eq(lines[i + 1].strip_edges(), "return",
-				"go_back: return must immediately follow change_scene_to_file (line %d)" % (i + 2))
-
-
-# -- No post-scene-change member access --
-
-func test_open_game_no_self_access_after_scene_change() -> void:
-	var script: GDScript = load("res://Scenes/Main.gd")
-	var source: String = script.source_code
-
+func test_open_game_delegates_to_scene_loader() -> void:
+	var source: String = (load("res://Scenes/Main.gd") as GDScript).source_code
 	var func_body := _extract_function_body(source, "func open_game")
 	assert_false(func_body.is_empty(), "Should find open_game function")
+	assert_true(func_body.contains("SceneLoader.change_scene"),
+		"open_game should delegate to SceneLoader.change_scene")
 
-	_assert_no_post_scene_change_access(func_body, "open_game")
 
-
-func test_go_back_no_self_access_after_scene_change() -> void:
-	var script: GDScript = load("res://Scenes/Game.gd")
-	var source: String = script.source_code
-
+func test_go_back_delegates_to_scene_loader() -> void:
+	var source: String = (load("res://Scenes/Game.gd") as GDScript).source_code
 	var func_body := _extract_function_body(source, "func go_back")
 	assert_false(func_body.is_empty(), "Should find go_back function")
+	assert_true(func_body.contains("SceneLoader.change_scene"),
+		"go_back should delegate to SceneLoader.change_scene")
 
-	_assert_no_post_scene_change_access(func_body, "go_back")
+
+# -- No post-scene-change member access in SceneLoader --
+
+func test_scene_loader_no_self_access_after_scene_change() -> void:
+	var script: GDScript = load("res://Data/SceneLoader.gd")
+	var source: String = script.source_code
+	var func_body := _extract_function_body(source, "static func change_scene")
+	assert_false(func_body.is_empty(), "Should find change_scene function")
+	_assert_no_post_scene_change_access(func_body, "change_scene")
 
 
 # -- SceneTree.change_scene_to_file API exists --

@@ -16,7 +16,7 @@ func test_game_entry_recover_rejects_whitespace_only_path() -> void:
 	entry.try_recover("   ")
 	await get_tree().process_frame
 
-	assert_eq(entry.metadata.entry_path, "/nonexistent")
+	assert_eq(entry.data.entry_path, "/nonexistent")
 
 
 func test_game_entry_recover_rejects_malformed_descriptor() -> void:
@@ -35,7 +35,7 @@ func test_game_entry_recover_rejects_malformed_descriptor() -> void:
 	entry.try_recover(tmp)
 	await get_tree().process_frame
 
-	assert_eq(entry.metadata.entry_path, "/nonexistent", "Recovery should be rejected for malformed descriptor")
+	assert_eq(entry.data.entry_path, "/nonexistent", "Recovery should be rejected for malformed descriptor")
 	assert_engine_error_count(2)
 
 	DirAccess.remove_absolute(tmp.path_join(GameDescriptor.config_file))
@@ -60,7 +60,7 @@ func test_game_entry_recover_accepts_valid_descriptor() -> void:
 
 	entry.try_recover(tmp)
 
-	assert_eq(entry.metadata.entry_path, tmp, "Recovery should update path for valid descriptor")
+	assert_eq(entry.data.entry_path, tmp, "Recovery should update path for valid descriptor")
 
 	DirAccess.remove_absolute(tmp.path_join(GameDescriptor.config_file))
 	DirAccess.remove_absolute(tmp)
@@ -80,7 +80,7 @@ func test_mod_entry_recover_rejects_whitespace_only_path() -> void:
 	entry.try_recover("   ")
 	await get_tree().process_frame
 
-	assert_eq(entry.metadata.load_path, "/nonexistent")
+	assert_eq(entry.data.load_path, "/nonexistent")
 
 
 func test_mod_entry_recover_rejects_malformed_descriptor() -> void:
@@ -99,7 +99,7 @@ func test_mod_entry_recover_rejects_malformed_descriptor() -> void:
 	entry.try_recover(tmp)
 	await get_tree().process_frame
 
-	assert_eq(entry.metadata.load_path, "/nonexistent", "Recovery should be rejected for malformed descriptor")
+	assert_eq(entry.data.load_path, "/nonexistent", "Recovery should be rejected for malformed descriptor")
 	assert_engine_error_count(2)
 
 	DirAccess.remove_absolute(tmp.path_join(ModDescriptor.config_file))
@@ -125,7 +125,7 @@ func test_mod_entry_recover_accepts_valid_descriptor() -> void:
 
 	entry.try_recover(tmp)
 
-	assert_eq(entry.metadata.load_path, tmp, "Recovery should update path for valid descriptor")
+	assert_eq(entry.data.load_path, tmp, "Recovery should update path for valid descriptor")
 
 	DirAccess.remove_absolute(tmp.path_join(ModDescriptor.config_file))
 	DirAccess.remove_absolute(tmp)

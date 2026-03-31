@@ -27,7 +27,7 @@ func test_mod_entry_toggle_active_emits_signal() -> void:
 
 	var mod := ModData.new()
 	mod.active = false
-	entry.metadata = mod
+	entry.data = mod
 
 	watch_signals(entry)
 	entry.toggle_active(true)
@@ -42,7 +42,7 @@ func test_mod_entry_toggle_active_sets_metadata() -> void:
 
 	var mod := ModData.new()
 	mod.active = true
-	entry.metadata = mod
+	entry.data = mod
 
 	entry.toggle_active(false)
 

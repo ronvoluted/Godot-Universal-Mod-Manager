@@ -72,7 +72,7 @@ func test_has_extension_dot_only() -> void:
 	assert_false(".".has_extension("png"))
 
 
-# -- PackedStringArray (as used with Registry.ICON_FORMATS) --
+# -- PackedStringArray (as used with Icons.FORMATS) --
 
 func test_has_extension_packed_string_array() -> void:
 	var formats: PackedStringArray = ["png", "jpg"]

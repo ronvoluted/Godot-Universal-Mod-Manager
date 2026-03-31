@@ -172,7 +172,7 @@ func test_smart_resize_uses_rounding_not_truncation() -> void:
 	# Key test: 80 * 11 / 16 = 55.0 → exact
 	# Key test: 80 * 7 / 11 = 50.909... → int=50, roundi=51 — DIFFERENT!
 	var image := Image.create(110, 80, false, Image.FORMAT_RGBA8)
-	Registry.smart_resize_to_80(image)
+	Icons.resize_to_80(image)
 	# With roundi: 80 * 80 / 110 = 58.18 → 58; width = roundi(80*80/110)=58
 	# Actually width > height so: resize(80, roundi(80.0 * 80 / 110))
 	# = resize(80, roundi(58.18)) = resize(80, 58)
@@ -183,14 +183,14 @@ func test_smart_resize_uses_rounding_not_truncation() -> void:
 func test_smart_resize_portrait_uses_rounding() -> void:
 	# Portrait: 80x110 → resize(roundi(80*80/110), 80) = resize(58, 80)
 	var image := Image.create(80, 110, false, Image.FORMAT_RGBA8)
-	Registry.smart_resize_to_80(image)
+	Icons.resize_to_80(image)
 	assert_eq(image.get_width(), 58, "Portrait 80x110 width should round to 58")
 	assert_eq(image.get_height(), 80, "Portrait image height should be 80")
 
 
 func test_smart_resize_square_unchanged() -> void:
 	var image := Image.create(200, 200, false, Image.FORMAT_RGBA8)
-	Registry.smart_resize_to_80(image)
+	Icons.resize_to_80(image)
 	assert_eq(image.get_width(), 80, "Square image should resize to 80x80")
 	assert_eq(image.get_height(), 80, "Square image should resize to 80x80")
 
@@ -199,6 +199,6 @@ func test_smart_resize_rounding_differs_from_truncation() -> void:
 	# 80 * 60 / 130 = 36.923... → int()=36, roundi()=37
 	# This case demonstrates the actual floor-vs-round difference
 	var image := Image.create(130, 60, false, Image.FORMAT_RGBA8)
-	Registry.smart_resize_to_80(image)
+	Icons.resize_to_80(image)
 	assert_eq(image.get_width(), 80, "Wide image width should be 80")
 	assert_eq(image.get_height(), 37, "130x60 height should round to 37 (not truncate to 36)")

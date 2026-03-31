@@ -1,7 +1,7 @@
 extends Control
 
-var game_data: GameDescriptor
-var game_metadata: GameData
+var descriptor: GameDescriptor
+var game: GameData
 
 var entry_to_update: Control
 var entry_to_delete: Control
@@ -11,32 +11,30 @@ func _ready() -> void:
 
 	var dir := DirAccess.open(entry_path)
 	var game_index := Registry.games.find_custom(func(meta: GameData) -> bool: return dir and dir.is_equivalent(meta.entry_path, entry_path))
-	game_metadata = Registry.games[game_index]
+	game = Registry.games[game_index]
 
-	game_data = game_metadata.entry
+	descriptor = game.entry
 
 	get_tree().scene_changed.connect(_on_scene_changed, CONNECT_ONE_SHOT)
 
 func _on_scene_changed(_scene_root: Node) -> void:
 	var new_missing := false
-	for mod: ModData in game_metadata.installed_mods:
+	for mod: ModData in game.installed_mods:
 		add_mod_entry(mod)
 		if not mod.active:
 			new_missing = true
 
 	if new_missing:
-		apply_mods()
+		OverrideCfg.apply(game)
 
-	%GameTitle.text = game_data.title
-	var icon_path := game_metadata.entry_path.path_join("icon.png")
-	if FileAccess.file_exists(icon_path):
-		var image := Image.load_from_file(icon_path)
-		if image:
-			%GameIcon.texture = ImageTexture.create_from_image(image)
-	%GodotVersion.text %= game_data.godot_version
-	%ModsEnabled.set_pressed_no_signal(game_metadata.mods_enabled)
+	%GameTitle.text = descriptor.title
+	var texture := Icons.load_texture(game.entry_path)
+	if texture:
+		%GameIcon.texture = texture
+	%GodotVersion.text %= descriptor.godot_version
+	%ModsEnabled.set_pressed_no_signal(game.mods_enabled)
 
-	if is_override_cfg_disabled():
+	if OverrideCfg.is_disabled(game):
 		%ModsEnabled.disabled = true
 		%ModsEnabled.tooltip_text = "This game has disabled override.cfg via project settings"
 		%OverrideCfgWarning.show()
@@ -54,37 +52,23 @@ func import_mod_update() -> void:
 	%ImportModVersion.text = ""
 	entry_to_update = null
 
-	if %ImportModPath.text.strip_edges().is_empty():
-		set_import_error("Path can't be empty.")
-		return
-
-	if not DirAccess.dir_exists_absolute(%ImportModPath.text):
-		set_import_error("The provided directory does not exist.")
-		return
-
-	var descriptor_path: String = %ImportModPath.text.path_join(ModDescriptor.config_file)
-	if not FileAccess.file_exists(descriptor_path):
-		set_import_error("No \"%s\" found at the given location." % ModDescriptor.config_file)
-		return
-
-	if FileAccess.get_size(descriptor_path) == 0:
-		set_import_error("\"%s\" is empty." % ModDescriptor.config_file)
+	var error := ModDescriptor.validate_path(%ImportModPath.text)
+	if not error.is_empty():
+		set_import_error(error)
 		return
 
 	var mod_data := ModDescriptor.new()
-	if not mod_data.load_data(%ImportModPath.text):
-		set_import_error("\"%s\" is malformed or unreadable." % ModDescriptor.config_file)
-		return
+	mod_data.load_data(%ImportModPath.text)
 
-	if mod_data.game != game_data.title:
-		set_import_error("Mod isn't made for \"%s\"." % game_data.title)
+	if mod_data.game != descriptor.title:
+		set_import_error("Mod isn't made for \"%s\"." % descriptor.title)
 		return
 
 	set_import_error("")
 
 	var existing := get_mod_by_name(mod_data.name)
 	if existing:
-		set_import_warning("A mod with this name already exists, with version %s. It will be replaced." % existing.entry.version)
+		set_import_warning("A mod with this name already exists, with version %s. It will be replaced." % existing.descriptor.version)
 		entry_to_update = existing
 
 	%ImportModName.text = mod_data.name
@@ -92,12 +76,12 @@ func import_mod_update() -> void:
 	%ImportModVersion.text = mod_data.version
 
 func import_mod_confirmed() -> void:
-	var entry := Registry.add_new_mod_entry(game_metadata, %ImportModPath.text)
+	var entry := Registry.add_new_mod_entry(game, %ImportModPath.text)
 	if entry_to_update:
 		refresh_entry(entry_to_update)
 	else:
 		add_mod_entry(entry)
-	apply_mods()
+	OverrideCfg.apply(game)
 
 func update_empty_state() -> void:
 	%EmptyLabel.visible = %ModList.get_child_count() <= 1
@@ -109,7 +93,7 @@ func add_mod_entry(mod: ModData) -> Control:
 
 	entry.get_node(^"%Edit").pressed.connect(edit_mod.bind(entry))
 	entry.get_node(^"%Remove").pressed.connect(remove_mod.bind(entry))
-	entry.active_toggled.connect(apply_mods)
+	entry.active_toggled.connect(func() -> void: OverrideCfg.apply(game))
 	entry.recovered.connect(refresh_entry.bind(entry))
 	update_empty_state()
 	return entry
@@ -128,10 +112,10 @@ func create_mod() -> void:
 
 func begin_edit_mod() -> void:
 	%NewModPath.disabled = true
-	%NewModPath.text = entry_to_update.metadata.load_path
-	%NewModName.text = entry_to_update.entry.name
-	%NewModDescription.text = entry_to_update.entry.description
-	%NewModVersion.text = entry_to_update.entry.version
+	%NewModPath.text = entry_to_update.data.load_path
+	%NewModName.text = entry_to_update.descriptor.name
+	%NewModDescription.text = entry_to_update.descriptor.description
+	%NewModVersion.text = entry_to_update.descriptor.version
 	if entry_to_update.has_icon:
 		%IconPath.disabled = true
 		%IconPath.clear()
@@ -142,32 +126,32 @@ func begin_edit_mod() -> void:
 
 func create_mod_confirmed() -> void:
 	var mod_data := ModDescriptor.new()
-	mod_data.game = game_data.title
+	mod_data.game = descriptor.title
 	mod_data.name = %NewModName.text
 	mod_data.description = %NewModDescription.text
 	mod_data.version = %NewModVersion.text
 	mod_data.save_data(%NewModPath.text)
 
-	if not %IconPath.text.is_empty() and FileAccess.file_exists(%IconPath.text) and %IconPath.text.has_extension(Registry.ICON_FORMATS):
+	if not %IconPath.text.is_empty() and FileAccess.file_exists(%IconPath.text) and %IconPath.text.has_extension(Icons.FORMATS):
 		var image := Image.load_from_file(%IconPath.text)
 		if image:
-			Registry.smart_resize_to_80(image)
+			Icons.resize_to_80(image)
 			image.save_png(%NewModPath.text.path_join("icon.png"))
 
 	if entry_to_update:
 		refresh_entry(entry_to_update)
 		return
 
-	var err := DirAccess.copy_absolute("res://System/%s/GUMM_mod.gd" % game_data.godot_version, %NewModPath.text.path_join("GUMM_mod.gd"))
+	var err := DirAccess.copy_absolute("res://System/%s/GUMM_mod.gd" % descriptor.godot_version, %NewModPath.text.path_join("GUMM_mod.gd"))
 	if err != OK:
 		push_error("Failed to copy mod template GUMM_mod.gd (error %d)." % err)
-	err = DirAccess.copy_absolute("res://System/%s/mod.gd" % game_data.godot_version, %NewModPath.text.path_join("mod.gd"))
+	err = DirAccess.copy_absolute("res://System/%s/mod.gd" % descriptor.godot_version, %NewModPath.text.path_join("mod.gd"))
 	if err != OK:
 		push_error("Failed to copy mod template mod.gd (error %d)." % err)
 
-	var mod_entry := Registry.add_new_mod_entry(game_metadata, %NewModPath.text)
+	var mod_entry := Registry.add_new_mod_entry(game, %NewModPath.text)
 	add_mod_entry(mod_entry)
-	apply_mods()
+	OverrideCfg.apply(game)
 
 func edit_mod(entry: Control) -> void:
 	entry_to_update = entry
@@ -179,23 +163,23 @@ func remove_mod(entry: Control, confirmed := false) -> void:
 		entry.missing = true
 
 	if entry.missing:
-		Registry.remove_mod_entry(game_metadata, entry.metadata)
+		Registry.remove_mod_entry(game, entry.data)
 		entry.queue_free()
 		update_empty_state()
 	else:
 		entry_to_delete = entry
-		$DeleteConfirm.dialog_text = "Delete mod \"%s\"?" % entry.entry.name
+		$DeleteConfirm.dialog_text = "Delete mod \"%s\"?" % entry.descriptor.name
 		$DeleteConfirm.reset_size()
 		$DeleteConfirm.popup_centered()
 
 func refresh_entry(old_entry: Control) -> void:
-	var new_entry := add_mod_entry(old_entry.metadata)
+	var new_entry := add_mod_entry(old_entry.data)
 	new_entry.get_parent().move_child(new_entry, old_entry.get_index())
 	old_entry.queue_free()
 
 func get_mod_by_name(mod_name: String) -> Control:
 	var children := %ModList.get_children()
-	var index := children.find_custom(func(entry: Node) -> bool: return entry.entry.name == mod_name)
+	var index := children.find_custom(func(entry: Node) -> bool: return entry.descriptor.name == mod_name)
 	return children[index] if index != -1 else null
 
 #endregion
@@ -230,7 +214,7 @@ func validate_new_mod() -> void:
 
 	set_create_error("")
 
-	if not %IconPath.disabled and not %IconPath.text.strip_edges().is_empty() and (not FileAccess.file_exists(%IconPath.text) or not %IconPath.text.has_extension(Registry.ICON_FORMATS)):
+	if not %IconPath.disabled and not %IconPath.text.strip_edges().is_empty() and (not FileAccess.file_exists(%IconPath.text) or not %IconPath.text.has_extension(Icons.FORMATS)):
 		set_create_warning("Icon path invalid. The mod will have no icon.")
 
 func set_create_error(error: String) -> void:
@@ -247,118 +231,20 @@ func set_create_warning(warning: String) -> void:
 #region Override.cfg Management
 
 func open_game_directory() -> void:
-	OS.shell_open(game_metadata.game_path)
+	OS.shell_open(game.game_path)
 
 func toggle_mods(button_pressed: bool) -> void:
-	game_metadata.mods_enabled = button_pressed
-
+	game.mods_enabled = button_pressed
 	if button_pressed:
-		apply_mods()
+		OverrideCfg.apply(game)
 	else:
-		var override_file := get_override_path()
-		var config := ConfigFile.new()
-		config.load(override_file)
-
-		var deleted := false
-		var config_sections := config.get_sections()
-		if config_sections.size() == 1 or config_sections.size() == 2:
-			match game_data.godot_version:
-				"2.x", "3.x":
-					var has := int("application" in config_sections) + int("gumm" in config_sections)
-					if has == config_sections.size() and config.get_section_keys("application").size() == 1:
-						DirAccess.remove_absolute(override_file)
-						deleted = true
-				"4.x":
-					var has := int("autoload" in config_sections) + int("gumm" in config_sections)
-					if has == config_sections.size() and config.get_section_keys("autoload").size() == 1:
-						DirAccess.remove_absolute(override_file)
-						deleted = true
-
-		if not deleted:
-			match game_data.godot_version:
-				"2.x":
-					config.erase_section_key("application", "main_scene")
-				"3.x":
-					config.erase_section_key("application", "run/main_scene")
-				"4.x":
-					config.erase_section_key("autoload", "GUMM")
-					if config.has_section("autoload") and config.get_section_keys("autoload").is_empty():
-						config.erase_section("autoload")
-
-			if config.has_section("gumm"):
-				config.erase_section("gumm")
-			config.save(override_file)
-
-		match game_data.godot_version:
-			"2.x", "3.x":
-				DirAccess.remove_absolute(game_metadata.game_path.path_join(GameData.mod_loader_scene))
-			"4.x":
-				DirAccess.remove_absolute(game_metadata.game_path.path_join(GameData.mod_loader_autoload))
-
-func apply_mods() -> void:
-	var override_file := get_override_path()
-	var config := ConfigFile.new()
-	if FileAccess.file_exists(override_file):
-		config.load(override_file)
-
-	var copy_err: Error
-	match game_data.godot_version:
-		"2.x":
-			config.set_value("application", "main_scene", "res://" + GameData.mod_loader_scene)
-			copy_err = DirAccess.copy_absolute("res://System/2.x/%s" % GameData.mod_loader_scene, game_metadata.game_path.path_join(GameData.mod_loader_scene))
-			if copy_err != OK:
-				push_error("Failed to copy mod loader scene for 2.x (error %d)." % copy_err)
-			config.set_value("gumm", "main_scene", game_data.main_scene)
-		"3.x":
-			config.set_value("application", "run/main_scene", "res://" + GameData.mod_loader_scene)
-			copy_err = DirAccess.copy_absolute("res://System/3.x/%s" % GameData.mod_loader_scene, game_metadata.game_path.path_join(GameData.mod_loader_scene))
-			if copy_err != OK:
-				push_error("Failed to copy mod loader scene for 3.x (error %d)." % copy_err)
-			config.set_value("gumm", "main_scene", game_data.main_scene)
-		"4.x":
-			copy_err = DirAccess.copy_absolute("res://System/4.x/" + GameData.mod_loader_autoload, game_metadata.game_path.path_join(GameData.mod_loader_autoload))
-			if copy_err != OK:
-				push_error("Failed to copy mod loader autoload for 4.x (error %d)." % copy_err)
-			config.set_value("autoload", "GUMM", "*res://" + GameData.mod_loader_autoload)
-
-	config.set_value("gumm", "mod_list", game_metadata.installed_mods.filter(func(mod: ModData) -> bool: return mod.active).map(func(mod: ModData) -> String: return mod.load_path))
-
-	var save_err := config.save(override_file)
-	if save_err != OK:
-		push_error("Failed to save override.cfg to '%s' (error %d)." % [override_file, save_err])
-
-func get_override_path() -> String:
-	return game_metadata.game_path.path_join("override.cfg")
-
-func is_override_cfg_disabled() -> bool:
-	var project_cfg_path := game_metadata.game_path.path_join("project.godot")
-	if not FileAccess.file_exists(project_cfg_path):
-		return false
-	var config := ConfigFile.new()
-	if config.load(project_cfg_path) != OK:
-		return false
-	return config.get_value("application", "config/disable_project_settings_override", false)
+		OverrideCfg.remove(game)
 
 #endregion
 
 #region Navigation
 
 func go_back() -> void:
-	var scene_path := "res://Scenes/Main.tscn"
-	ResourceLoader.load_threaded_request(scene_path)
-	while true:
-		var status := ResourceLoader.load_threaded_get_status(scene_path)
-		match status:
-			ResourceLoader.THREAD_LOAD_IN_PROGRESS:
-				await get_tree().process_frame
-			ResourceLoader.THREAD_LOAD_LOADED:
-				get_tree().change_scene_to_packed(
-					ResourceLoader.load_threaded_get(scene_path) as PackedScene
-				)
-				return
-			_:
-				push_error("Failed to load scene: %s" % scene_path)
-				get_tree().change_scene_to_file(scene_path)
-				return
+	SceneLoader.change_scene(get_tree(), "res://Scenes/Main.tscn")
 
 #endregion

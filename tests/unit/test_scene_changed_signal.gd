@@ -83,8 +83,8 @@ func test_game_ready_still_loads_metadata() -> void:
 
 	assert_true(ready_body.contains("get_meta") and ready_body.contains("current_game"),
 		"Game._ready should still read current_game metadata")
-	assert_true(ready_body.contains("game_metadata"),
-		"Game._ready should still initialize game_metadata")
+	assert_true(ready_body.contains("game = Registry"),
+		"Game._ready should still initialize game data")
 
 
 func test_main_ready_still_populates_game_list() -> void:

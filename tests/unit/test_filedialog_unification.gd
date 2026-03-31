@@ -88,7 +88,7 @@ func test_file_mode_filters_match_icon_formats() -> void:
 	await get_tree().process_frame
 
 	var file_dialog: FileDialog = path_edit.get_node("FileDialog")
-	for ext: String in Registry.ICON_FORMATS:
+	for ext: String in Icons.FORMATS:
 		var filter := "*." + ext
 		assert_has(file_dialog.filters, filter, "Filter '%s' should be set" % filter)
 

@@ -25,7 +25,7 @@ func _ready() -> void:
 		file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_DIR
 		file_dialog.dir_selected.connect(dialog_select)
 	elif mode == 1:
-		file_dialog.filters = Array(Registry.ICON_FORMATS).map(func(ext: String) -> String: return "*." + ext)
+		file_dialog.filters = Array(Icons.FORMATS).map(func(ext: String) -> String: return "*." + ext)
 		file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 		file_dialog.file_selected.connect(dialog_select)
 

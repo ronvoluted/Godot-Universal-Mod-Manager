@@ -13,7 +13,7 @@ func test_games_array_is_typed() -> void:
 
 
 func test_icon_formats_is_packed_string_array() -> void:
-	assert_typeof(Registry.ICON_FORMATS, TYPE_PACKED_STRING_ARRAY)
+	assert_typeof(Icons.FORMATS, TYPE_PACKED_STRING_ARRAY)
 
 
 # -- GameData type safety --

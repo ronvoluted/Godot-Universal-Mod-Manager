@@ -28,6 +28,15 @@ func load_data(path: String) -> bool:
 	main_scene = cfg.get_value(section, "main_scene")
 	return true
 
+static func validate_path(path: String) -> String:
+	var error := Descriptor.validate_directory(path, config_file)
+	if not error.is_empty():
+		return error
+	var desc := GameDescriptor.new()
+	if not desc.load_data(path):
+		return "\"%s\" is malformed or unreadable." % config_file
+	return ""
+
 func save_data(path: String) -> Error:
 	var cfg := ConfigFile.new()
 	cfg.set_value(section, "title", title)

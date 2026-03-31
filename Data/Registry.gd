@@ -2,8 +2,6 @@ extends Node
 
 const GAME_ENTRIES_FILE: String = "user://game_list.cfg"
 const LEGACY_ENTRIES_FILE: String = "user://game_list.txt"
-const ICON_FORMATS: PackedStringArray = ["png", "jpg"]
-
 var games: Array[GameData]
 
 func _enter_tree() -> void:
@@ -90,12 +88,3 @@ func remove_mod_entry(game: GameData, mod: ModData) -> void:
 	game.installed_mods.erase(mod)
 	save_game_entry_list()
 
-func smart_resize_to_80(image: Image) -> void:
-	if image.get_width() == image.get_height():
-		image.resize(80, 80, Image.INTERPOLATE_LANCZOS)
-	elif image.get_width() > image.get_height():
-		image.resize(80, roundi(80.0 * image.get_height() / image.get_width()))
-	elif image.get_width() < image.get_height():
-		image.resize(roundi(80.0 * image.get_width() / image.get_height()), 80)
-	else:
-		get_tree().quit(1) # impossible

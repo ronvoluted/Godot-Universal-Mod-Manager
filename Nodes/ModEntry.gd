@@ -3,69 +3,52 @@ extends PanelContainer
 signal active_toggled
 signal recovered
 
-var entry: ModDescriptor
-var metadata: ModData
+var descriptor: ModDescriptor
+var data: ModData
 
 var missing: bool
 var has_icon: bool
 
 func set_mod(meta: ModData) -> void:
-	metadata = meta
-	
-	entry = ModDescriptor.new()
-	if not entry.load_data(metadata.load_path):
+	data = meta
+
+	descriptor = ModDescriptor.new()
+	if not descriptor.load_data(data.load_path):
 		missing = true
 		%Name.text = "MISSING"
 		%Name.modulate = Color.RED
-		%Description.text = "Mod not found at path: %s." % metadata.load_path
+		%Description.text = "Mod not found at path: %s." % data.load_path
 		%Active.disabled = true
 		%Edit.disabled = true
 		%OpenFolder.pressed.connect($FileDialog.popup_centered_ratio.bind(0.4))
 		return
-	
-	%Name.text = entry.name
-	%Description.text = entry.description
-	if entry.version.is_empty():
+
+	%Name.text = descriptor.name
+	%Description.text = descriptor.description
+	if descriptor.version.is_empty():
 		%Version.hide()
 	else:
-		%Version.text = "v.%s" % entry.version
-	%Active.set_pressed_no_signal(metadata.active)
-	
-	%OpenFolder.pressed.connect(OS.shell_open.bind(ProjectSettings.globalize_path(metadata.load_path)))
-	
-	if FileAccess.file_exists(metadata.load_path.path_join("icon.png")):
-		var image := Image.load_from_file(metadata.load_path.path_join("icon.png"))
-		if image:
-			%Icon.texture = ImageTexture.create_from_image(image)
-			has_icon = true
+		%Version.text = "v.%s" % descriptor.version
+	%Active.set_pressed_no_signal(data.active)
+
+	%OpenFolder.pressed.connect(OS.shell_open.bind(ProjectSettings.globalize_path(data.load_path)))
+
+	var texture := Icons.load_texture(data.load_path)
+	if texture:
+		%Icon.texture = texture
+		has_icon = true
 
 func toggle_active(button_pressed: bool) -> void:
-	metadata.active = button_pressed
+	data.active = button_pressed
 	active_toggled.emit()
 
 func try_recover(dir: String) -> void:
-	if dir.strip_edges().is_empty():
-		shoot_error.call_deferred("Path can't be empty.")
+	var error := ModDescriptor.validate_path(dir)
+	if not error.is_empty():
+		shoot_error.call_deferred(error)
 		return
 
-	if not DirAccess.dir_exists_absolute(dir):
-		shoot_error.call_deferred("The provided directory does not exist.")
-		return
-
-	if not FileAccess.file_exists(dir.path_join(ModDescriptor.config_file)):
-		shoot_error.call_deferred("No \"%s\" found at the given location." % ModDescriptor.config_file)
-		return
-
-	if FileAccess.get_size(dir.path_join(ModDescriptor.config_file)) == 0:
-		shoot_error.call_deferred("\"%s\" is empty." % ModDescriptor.config_file)
-		return
-
-	var data := ModDescriptor.new()
-	if not data.load_data(dir):
-		shoot_error.call_deferred("\"%s\" is malformed or unreadable." % ModDescriptor.config_file)
-		return
-
-	metadata.load_path = dir
+	data.load_path = dir
 	Registry.save_game_entry_list()
 
 	recovered.emit()
