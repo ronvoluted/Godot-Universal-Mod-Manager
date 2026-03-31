@@ -66,12 +66,18 @@ func import_game_entry() -> void:
 	if %CopyLocal.button_pressed:
 		var entry := GameDescriptor.new()
 		entry.load_data(entry_folder)
-		
+
 		var new_folder: String = "user://Games/" + entry.title.validate_filename()
-		DirAccess.make_dir_recursive_absolute(new_folder)
-		DirAccess.copy_absolute(entry_folder.path_join(GameDescriptor.config_file), new_folder.path_join(GameDescriptor.config_file))
+		var err := DirAccess.make_dir_recursive_absolute(new_folder)
+		if err != OK:
+			push_error("Failed to create directory '%s' (error %d)." % [new_folder, err])
+			return
+		err = DirAccess.copy_absolute(entry_folder.path_join(GameDescriptor.config_file), new_folder.path_join(GameDescriptor.config_file))
+		if err != OK:
+			push_error("Failed to copy game descriptor to '%s' (error %d)." % [new_folder, err])
+			return
 		DirAccess.copy_absolute(entry_folder.path_join("icon.png"), new_folder.path_join("icon.png"))
-		
+
 		entry_folder = new_folder
 	
 	var entry_data := Registry.add_new_game_entry(entry_folder, %ImportGame.text.simplify_path())
@@ -138,7 +144,10 @@ func create_game_entry() -> void:
 	entry.main_scene = %CreateScene.text
 	
 	var entry_path: String = "user://Games/" + %CreateTitle.text.validate_filename()
-	DirAccess.make_dir_recursive_absolute(entry_path)
+	var err := DirAccess.make_dir_recursive_absolute(entry_path)
+	if err != OK:
+		push_error("Failed to create directory '%s' (error %d)." % [entry_path, err])
+		return
 	entry.save_data(entry_path)
 	
 	if not %CreateIcon.text.is_empty():

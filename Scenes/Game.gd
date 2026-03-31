@@ -155,8 +155,12 @@ func create_mod_confirmed() -> void:
 		refresh_entry(entry_to_update)
 		return
 
-	DirAccess.copy_absolute("res://System/%s/GUMM_mod.gd" % game_data.godot_version, %NewModPath.text.path_join("GUMM_mod.gd"))
-	DirAccess.copy_absolute("res://System/%s/mod.gd" % game_data.godot_version, %NewModPath.text.path_join("mod.gd"))
+	var err := DirAccess.copy_absolute("res://System/%s/GUMM_mod.gd" % game_data.godot_version, %NewModPath.text.path_join("GUMM_mod.gd"))
+	if err != OK:
+		push_error("Failed to copy mod template GUMM_mod.gd (error %d)." % err)
+	err = DirAccess.copy_absolute("res://System/%s/mod.gd" % game_data.godot_version, %NewModPath.text.path_join("mod.gd"))
+	if err != OK:
+		push_error("Failed to copy mod template mod.gd (error %d)." % err)
 
 	var mod_entry := Registry.add_new_mod_entry(game_metadata, %NewModPath.text)
 	add_mod_entry(mod_entry)
@@ -294,22 +298,31 @@ func apply_mods() -> void:
 	if FileAccess.file_exists(override_file):
 		config.load(override_file)
 
+	var copy_err: Error
 	match game_data.godot_version:
 		"2.x":
 			config.set_value("application", "main_scene", "res://" + GameData.mod_loader_scene)
-			DirAccess.copy_absolute("res://System/2.x/%s" % GameData.mod_loader_scene, game_metadata.game_path.path_join(GameData.mod_loader_scene))
+			copy_err = DirAccess.copy_absolute("res://System/2.x/%s" % GameData.mod_loader_scene, game_metadata.game_path.path_join(GameData.mod_loader_scene))
+			if copy_err != OK:
+				push_error("Failed to copy mod loader scene for 2.x (error %d)." % copy_err)
 			config.set_value("gumm", "main_scene", game_data.main_scene)
 		"3.x":
 			config.set_value("application", "run/main_scene", "res://" + GameData.mod_loader_scene)
-			DirAccess.copy_absolute("res://System/3.x/%s" % GameData.mod_loader_scene, game_metadata.game_path.path_join(GameData.mod_loader_scene))
+			copy_err = DirAccess.copy_absolute("res://System/3.x/%s" % GameData.mod_loader_scene, game_metadata.game_path.path_join(GameData.mod_loader_scene))
+			if copy_err != OK:
+				push_error("Failed to copy mod loader scene for 3.x (error %d)." % copy_err)
 			config.set_value("gumm", "main_scene", game_data.main_scene)
 		"4.x":
-			DirAccess.copy_absolute("res://System/4.x/" + GameData.mod_loader_autoload, game_metadata.game_path.path_join(GameData.mod_loader_autoload))
+			copy_err = DirAccess.copy_absolute("res://System/4.x/" + GameData.mod_loader_autoload, game_metadata.game_path.path_join(GameData.mod_loader_autoload))
+			if copy_err != OK:
+				push_error("Failed to copy mod loader autoload for 4.x (error %d)." % copy_err)
 			config.set_value("autoload", "GUMM", "*res://" + GameData.mod_loader_autoload)
 
 	config.set_value("gumm", "mod_list", game_metadata.installed_mods.filter(func(mod: ModData) -> bool: return mod.active).map(func(mod: ModData) -> String: return mod.load_path))
 
-	config.save(override_file)
+	var save_err := config.save(override_file)
+	if save_err != OK:
+		push_error("Failed to save override.cfg to '%s' (error %d)." % [override_file, save_err])
 
 func get_override_path() -> String:
 	return game_metadata.game_path.path_join("override.cfg")

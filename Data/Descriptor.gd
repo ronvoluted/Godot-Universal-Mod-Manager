@@ -6,4 +6,4 @@ class_name Descriptor
 func load_data(path: String) -> bool
 
 @abstract
-func save_data(path: String) -> void
+func save_data(path: String) -> Error

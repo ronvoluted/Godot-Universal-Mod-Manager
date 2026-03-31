@@ -16,7 +16,9 @@ func _enter_tree() -> void:
 
 func _load_config() -> void:
 	var cfg := ConfigFile.new()
-	if cfg.load(GAME_ENTRIES_FILE) != OK:
+	var err := cfg.load(GAME_ENTRIES_FILE)
+	if err != OK:
+		push_error("Failed to load game list from '%s' (error %d)." % [GAME_ENTRIES_FILE, err])
 		return
 	var game_index := 0
 	while cfg.has_section("game.%d" % game_index):
@@ -38,6 +40,7 @@ func _load_config() -> void:
 func _load_legacy() -> void:
 	var file := FileAccess.open(LEGACY_ENTRIES_FILE, FileAccess.READ)
 	if not file:
+		push_error("Failed to open legacy game list '%s' (error %d)." % [LEGACY_ENTRIES_FILE, FileAccess.get_open_error()])
 		return
 	var game_list: Variant = str_to_var(file.get_as_text())
 	if game_list is Array:
@@ -55,7 +58,10 @@ func save_game_entry_list() -> Error:
 			var mod_section := "%s.mod.%d" % [section, j]
 			cfg.set_value(mod_section, "load_path", mod.load_path)
 			cfg.set_value(mod_section, "active", mod.active)
-	return cfg.save(GAME_ENTRIES_FILE)
+	var err := cfg.save(GAME_ENTRIES_FILE)
+	if err != OK:
+		push_error("Failed to save game list to '%s' (error %d)." % [GAME_ENTRIES_FILE, err])
+	return err
 
 func add_new_game_entry(entry_path: String, game_path: String) -> GameData:
 	var game := GameData.new({entry_path = entry_path, game_path = game_path, installed_mods = []})
