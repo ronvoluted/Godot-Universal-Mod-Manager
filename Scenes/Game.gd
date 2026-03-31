@@ -1,6 +1,6 @@
 extends Control
 
-var game_data: RefCounted
+var game_data: GameDescriptor
 var game_metadata: Registry.GameData
 
 var entry_to_update: Control

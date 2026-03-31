@@ -1,14 +1,14 @@
 extends Node
 
-var loaded_mods = []
+var loaded_mods: Array[RefCounted] = []
 
-func _enter_tree():
-	var mod_list = ProjectSettings.get_setting("gumm/mod_list")
-	for mod in mod_list:
+func _enter_tree() -> void:
+	var mod_list: PackedStringArray = ProjectSettings.get_setting("gumm/mod_list")
+	for mod: String in mod_list:
 		load_mod(mod)
 	get_tree().set_meta("GUMM_mods", loaded_mods)
 
-func load_mod(mod_path: String):
+func load_mod(mod_path: String) -> void:
 	var mod_cfg := ConfigFile.new()
 	mod_cfg.load(mod_path.path_join("mod.cfg"))
 	print("Loading mod: ", mod_cfg.get_value("Godot Mod", "name", "[unknown]"))

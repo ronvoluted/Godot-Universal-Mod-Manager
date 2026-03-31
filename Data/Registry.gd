@@ -1,6 +1,6 @@
 extends Node
 
-const GAME_ENTRIES_FILE = "user://game_list.txt"
+const GAME_ENTRIES_FILE: String = "user://game_list.txt"
 const ICON_FORMATS: PackedStringArray = ["png", "jpg"]
 
 var games: Array[GameData]
@@ -8,7 +8,7 @@ var games: Array[GameData]
 func _enter_tree() -> void:
 	var game_entries := FileAccess.open(GAME_ENTRIES_FILE, FileAccess.READ)
 	if game_entries:
-		var game_list: Array = str_to_var(game_entries.get_as_text())
+		var game_list: Array[Variant] = str_to_var(game_entries.get_as_text())
 		games.assign(game_list.map(GameData.new))
 
 func save_game_entry_list() -> Error:
