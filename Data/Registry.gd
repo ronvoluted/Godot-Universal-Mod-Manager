@@ -9,8 +9,7 @@ func _enter_tree() -> void:
 	var game_entries := FileAccess.open(GAME_ENTRIES_FILE, FileAccess.READ)
 	if game_entries:
 		var game_list: Array = str_to_var(game_entries.get_as_text())
-		for game: Dictionary in game_list:
-			games.append(GameData.new(game))
+		games.assign(game_list.map(GameData.new))
 
 func save_game_entry_list() -> void:
 	var game_entries := FileAccess.open(GAME_ENTRIES_FILE, FileAccess.WRITE)
@@ -94,8 +93,7 @@ class GameData:
 		entry = GameDescriptor.new()
 		entry.load_data(entry_path)
 
-		for mod: Variant in config.installed_mods:
-			installed_mods.append(ModData.new(mod))
+		installed_mods.assign(Array(config.installed_mods).map(ModData.new))
 	
 	func get_var() -> Dictionary:
 		var mods := installed_mods.map(func(mod: ModData) -> Dictionary: return mod.get_var())
