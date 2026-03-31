@@ -95,11 +95,12 @@ func import_mod_confirmed() -> void:
 func add_mod_entry(mod: Registry.GameData.ModData) -> Control:
 	var entry: Control = preload("res://Nodes/ModEntry.tscn").instantiate()
 	%ModList.add_child(entry)
-	entry.owner = self
 	entry.set_mod(mod)
 
 	entry.get_node(^"%Edit").pressed.connect(edit_mod.bind(entry))
 	entry.get_node(^"%Remove").pressed.connect(remove_mod.bind(entry))
+	entry.active_toggled.connect(apply_mods)
+	entry.recovered.connect(refresh_entry.bind(entry))
 	return entry
 
 func create_mod() -> void:

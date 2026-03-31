@@ -1,5 +1,8 @@
 extends PanelContainer
 
+signal active_toggled
+signal recovered
+
 var entry: ModDescriptor
 var metadata: Registry.GameData.ModData
 
@@ -35,7 +38,7 @@ func set_mod(meta: Registry.GameData.ModData) -> void:
 
 func toggle_active(button_pressed: bool) -> void:
 	metadata.active = button_pressed
-	owner.apply_mods()
+	active_toggled.emit()
 
 func try_recover(dir: String) -> void:
 	if dir.is_empty():
@@ -56,8 +59,8 @@ func try_recover(dir: String) -> void:
 	
 	metadata.load_path = dir
 	Registry.save_game_entry_list()
-	
-	owner.refresh_entry(self)
+
+	recovered.emit()
 
 func shoot_error(error: String) -> void:
 	$AcceptDialog.dialog_text = error

@@ -1,5 +1,7 @@
 extends PanelContainer
 
+signal recovered
+
 @onready var button: Button = $Button
 
 var entry: GameDescriptor
@@ -56,8 +58,8 @@ func try_recover(dir: String) -> void:
 	
 	metadata.entry_path = dir
 	Registry.save_game_entry_list()
-	
-	owner.refresh_entry(self)
+
+	recovered.emit()
 
 func shoot_error(error: String) -> void:
 	$AcceptDialog.dialog_text = error

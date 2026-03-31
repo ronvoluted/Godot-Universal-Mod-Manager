@@ -153,11 +153,11 @@ func create_game_entry() -> void:
 func add_game_entry(game: Registry.GameData) -> Control:
 	var entry: Control = preload("res://Nodes/GameEntry.tscn").instantiate()
 	%GameList.add_child(entry)
-	entry.owner = self
 	entry.set_game(game)
 	if not entry.missing:
 		entry.button.pressed.connect(open_game.bind(game.entry_path))
 	entry.get_node(^"%Remove").pressed.connect(remove_game.bind(entry))
+	entry.recovered.connect(refresh_entry.bind(entry))
 	return entry
 
 func open_game(path: String) -> void:
