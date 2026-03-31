@@ -138,6 +138,7 @@ func test_file_round_trip() -> void:
 	# Write (mirrors Registry.save_game_entry_list)
 	var file := FileAccess.open(test_file, FileAccess.WRITE)
 	file.store_string(var_to_str(game_list))
+	assert_eq(file.get_error(), OK, "get_error() should be OK after store_string() (GH-78289)")
 	file = null
 
 	# Read (mirrors Registry._enter_tree)

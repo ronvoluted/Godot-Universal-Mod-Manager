@@ -11,10 +11,13 @@ func _enter_tree() -> void:
 		var game_list: Array = str_to_var(game_entries.get_as_text())
 		games.assign(game_list.map(GameData.new))
 
-func save_game_entry_list() -> void:
+func save_game_entry_list() -> Error:
 	var game_entries := FileAccess.open(GAME_ENTRIES_FILE, FileAccess.WRITE)
+	if not game_entries:
+		return FileAccess.get_open_error()
 	var game_list := games.map(func(game: GameData) -> Dictionary[StringName, Variant]: return game.get_var())
 	game_entries.store_string(var_to_str(game_list))
+	return game_entries.get_error()
 
 func add_new_game_entry(entry_path: String, game_path: String) -> GameData:
 	var game := GameData.new({entry_path = entry_path, game_path = game_path, installed_mods = []})
