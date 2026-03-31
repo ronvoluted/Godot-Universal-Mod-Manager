@@ -9,6 +9,7 @@ func _ready() -> void:
 	get_tree().scene_changed.connect(_on_scene_changed, CONNECT_ONE_SHOT)
 	for game: GameData in Registry.games:
 		add_game_entry(game)
+	update_empty_state()
 
 func _on_scene_changed(_scene_root: Node) -> void:
 	if get_tree().has_meta(&"current_game"):
@@ -82,9 +83,11 @@ func import_game_entry() -> void:
 
 func on_create_game_entry() -> void:
 	%CreateTitle.clear()
+	%CreateIcon.clear()
 	%CreateScene.clear()
 	%CreateDirectory.clear()
-	
+	validate_create()
+
 	$CreateGame.reset_size()
 	$CreateGame.popup_centered()
 
@@ -150,6 +153,9 @@ func create_game_entry() -> void:
 
 #region Entry Management
 
+func update_empty_state() -> void:
+	%EmptyLabel.visible = %GameList.get_child_count() <= 1
+
 func add_game_entry(game: GameData) -> Control:
 	var entry: Control = preload("res://Nodes/GameEntry.tscn").instantiate()
 	%GameList.add_child(entry)
@@ -158,6 +164,7 @@ func add_game_entry(game: GameData) -> Control:
 		entry.button.pressed.connect(open_game.bind(game.entry_path))
 	entry.get_node(^"%Remove").pressed.connect(remove_game.bind(entry))
 	entry.recovered.connect(refresh_entry.bind(entry))
+	update_empty_state()
 	return entry
 
 func open_game(path: String) -> void:
@@ -196,6 +203,7 @@ func remove_game(entry: Control, confirmed := false) -> void:
 	if entry.missing:
 		Registry.remove_game_entry(entry.metadata)
 		entry.queue_free()
+		update_empty_state()
 	else:
 		entry_to_delete = entry
 		$DeleteConfirm.dialog_text = "Delete game \"%s\"?" % entry.entry.title

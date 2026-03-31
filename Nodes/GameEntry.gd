@@ -23,13 +23,14 @@ func set_game(meta: GameData) -> void:
 		%OpenFolder.pressed.connect($FileDialog.popup_centered_ratio.bind(0.4))
 		$Button.pressed.connect($FileDialog.popup_centered_ratio.bind(0.4))
 		return
-	
-	entry.load_data(metadata.entry_path)
-	
+
 	%Title.text = entry.title
-	
-	var image := Image.load_from_file(metadata.entry_path.path_join("icon.png"))
-	%Icon.texture = ImageTexture.create_from_image(image)
+
+	var icon_path := metadata.entry_path.path_join("icon.png")
+	if FileAccess.file_exists(icon_path):
+		var image := Image.load_from_file(icon_path)
+		if image:
+			%Icon.texture = ImageTexture.create_from_image(image)
 	
 	%Installed.text %= metadata.installed_mods.size()
 	if metadata.mods_enabled:

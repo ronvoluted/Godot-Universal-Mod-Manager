@@ -28,7 +28,11 @@ func _on_scene_changed(_scene_root: Node) -> void:
 		apply_mods()
 
 	%GameTitle.text = game_data.title
-	%GameIcon.texture = ImageTexture.create_from_image(Image.load_from_file(game_metadata.entry_path.path_join("icon.png")))
+	var icon_path := game_metadata.entry_path.path_join("icon.png")
+	if FileAccess.file_exists(icon_path):
+		var image := Image.load_from_file(icon_path)
+		if image:
+			%GameIcon.texture = ImageTexture.create_from_image(image)
 	%GodotVersion.text %= game_data.godot_version
 	%ModsEnabled.set_pressed_no_signal(game_metadata.mods_enabled)
 
@@ -92,6 +96,9 @@ func import_mod_confirmed() -> void:
 		add_mod_entry(entry)
 	apply_mods()
 
+func update_empty_state() -> void:
+	%EmptyLabel.visible = %ModList.get_child_count() <= 1
+
 func add_mod_entry(mod: ModData) -> Control:
 	var entry: Control = preload("res://Nodes/ModEntry.tscn").instantiate()
 	%ModList.add_child(entry)
@@ -101,6 +108,7 @@ func add_mod_entry(mod: ModData) -> Control:
 	entry.get_node(^"%Remove").pressed.connect(remove_mod.bind(entry))
 	entry.active_toggled.connect(apply_mods)
 	entry.recovered.connect(refresh_entry.bind(entry))
+	update_empty_state()
 	return entry
 
 func create_mod() -> void:
@@ -109,8 +117,10 @@ func create_mod() -> void:
 	%NewModPath.clear()
 	%IconPath.disabled = false
 	%IconPath.clear()
+	%NewModName.clear()
 	%NewModDescription.clear()
 	%NewModVersion.clear()
+	validate_new_mod()
 	$NewModDialog.popup_centered()
 
 func begin_edit_mod() -> void:
@@ -164,6 +174,7 @@ func remove_mod(entry: Control, confirmed := false) -> void:
 	if entry.missing:
 		Registry.remove_mod_entry(game_metadata, entry.metadata)
 		entry.queue_free()
+		update_empty_state()
 	else:
 		entry_to_delete = entry
 		$DeleteConfirm.dialog_text = "Delete mod \"%s\"?" % entry.entry.name

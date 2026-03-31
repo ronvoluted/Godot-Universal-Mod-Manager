@@ -25,7 +25,10 @@ func set_mod(meta: ModData) -> void:
 	
 	%Name.text = entry.name
 	%Description.text = entry.description
-	%Version.text = "v.%s" % entry.version
+	if entry.version.is_empty():
+		%Version.hide()
+	else:
+		%Version.text = "v.%s" % entry.version
 	%Active.set_pressed_no_signal(metadata.active)
 	
 	%OpenFolder.pressed.connect(OS.shell_open.bind(ProjectSettings.globalize_path(metadata.load_path)))
