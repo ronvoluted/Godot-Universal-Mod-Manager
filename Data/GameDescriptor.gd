@@ -1,4 +1,4 @@
-extends RefCounted
+extends Descriptor
 class_name GameDescriptor
 
 static var config_file := "game.cfg"

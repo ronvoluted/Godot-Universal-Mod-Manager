@@ -1,4 +1,4 @@
-extends RefCounted
+extends Descriptor
 class_name ModDescriptor
 
 static var config_file := "mod.cfg"
