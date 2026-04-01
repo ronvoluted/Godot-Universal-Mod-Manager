@@ -53,9 +53,23 @@ custom_minimum_size = Vector2(600, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="GameList" type="VBoxContainer" parent="VBoxContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="GameList" type="VBoxContainer" parent="VBoxContainer/ScrollContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EmptyLabel" type="Label" parent="VBoxContainer/ScrollContainer/GameList"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "No games added yet. Import or create a game entry to get started."
+horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="Button" type="Button" parent="VBoxContainer"]
 layout_mode = 2
@@ -84,11 +98,12 @@ size = Vector2i(616, 180)
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 608.0
-offset_bottom = 131.0
+offset_bottom = 132.0
 
 [node name="VBoxContainer" type="GridContainer" parent="AddGame/VBoxContainer2"]
 custom_minimum_size = Vector2(600, 0)
 layout_mode = 2
+theme_override_constants/h_separation = 30
 columns = 2
 
 [node name="Label" type="Label" parent="AddGame/VBoxContainer2/VBoxContainer"]
@@ -126,7 +141,7 @@ autowrap_mode = 2
 
 [node name="CreateGame" type="AcceptDialog" parent="."]
 title = "Create Game Entry"
-size = Vector2i(616, 357)
+size = Vector2i(616, 358)
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="CreateGame"]
 offset_left = 8.0
@@ -137,6 +152,7 @@ offset_bottom = 308.0
 [node name="VBoxContainer" type="GridContainer" parent="CreateGame/VBoxContainer2"]
 custom_minimum_size = Vector2(600, 0)
 layout_mode = 2
+theme_override_constants/h_separation = 30
 columns = 2
 
 [node name="Label" type="Label" parent="CreateGame/VBoxContainer2/VBoxContainer"]
@@ -147,6 +163,7 @@ text = "Game Title"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+placeholder_text = "My Game"
 
 [node name="Label5" type="Label" parent="CreateGame/VBoxContainer2/VBoxContainer"]
 layout_mode = 2
@@ -181,6 +198,7 @@ text = "Main Scene"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+placeholder_text = "res://main.tscn"
 
 [node name="Label4" type="Label" parent="CreateGame/VBoxContainer2/VBoxContainer"]
 layout_mode = 2

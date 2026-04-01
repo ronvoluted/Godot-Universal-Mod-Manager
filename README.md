@@ -5,20 +5,25 @@ App for managing and creating mods for any Godot game, without needing to modify
 ## How does this work
 
 The manager takes advantage of two facts:
+
 - you can add `override.cfg` to your game and override any project setting
 - `Resource.take_over_path()` will make the resource literally take over the given path, so any `load()` calls will load it instead
 
 With this, you can override the main scene and inject/replace any resource in the game.
 
+For Godot 4.x, the mod loader uses a different approach: it registers itself as a **front-loaded autoload** via `override.cfg`, which ensures mod initialization happens before any game autoloads. This makes mod loading more reliable than the scene-replacement approach used in 2.x/3.x.
+
 ### Caveats
 
 There are a few things that make modding this way difficult or impossible:
+
 - debugging a mod is difficult, especially if the game uses a modified Godot build
 - in worst case, the game has no GDScript module, which makes this manager useless
 - the files can also be encrypted, making it more difficult to tinker with them
 - `take_over_path()` will not work when resources are loaded without cache (which is unlikely, but possible)
 - if the game uses non-resource files, like `json` or `txt`, you won't be able to replace them with ResourceLoader
 - to replace script or scene, you need to first get a copy of it and modify yourself, which is difficult outside the project
+- in Godot 4.6+, games can set `disable_project_settings_override = true` in their `project.godot`, which prevents `override.cfg` from loading entirely — GUMM will detect this and show a warning
 
 ## Basics
 
@@ -52,7 +57,7 @@ When you first open the game entry, your mod list will be empty too:
 
 ![](Media/ModListEmpty.png)
 
-Aside from Import/Create options, which are pretty much the same as with games, there is a few more elements here. Godot version next to the game title, the Open Game Directory button that opens the installation directory of the game. The Enable Mods button will add GUMM loader to the installation directory. It consists of 2 things: `override.cfg` file and `GUMM_mod_loader.tscn` scene, which is entry point for loading mods. When these 2 files are in installed, launching your game will load all mods that are on your list and are active. Note that if a game already has `override.cfg`, mod loader will add its entries to the existing file.
+Aside from Import/Create options, which are pretty much the same as with games, there is a few more elements here. Godot version next to the game title, the Open Game Directory button that opens the installation directory of the game. The Enable Mods button will add GUMM loader to the installation directory. For Godot 2.x/3.x, this consists of an `override.cfg` file and a `GUMM_mod_loader.tscn` scene. For Godot 4.x, the loader is installed as an autoload script (`GUMM_mod_loader_autoload.gd`) registered in `override.cfg`. When these files are installed, launching your game will load all mods that are on your list and are active. Note that if a game already has `override.cfg`, mod loader will add its entries to the existing file.
 
 Importing a mod is the same as importing game entry. You need a mod directory with `mod.cfg` file. Select the directory and you will see the mod information:
 
@@ -76,11 +81,11 @@ Creating mod entries is the same as creating game entries:
 
 ![](Media/CreateModDialog.png)
 
-Of note is the Path field, which needs to be pointing to an *empty* directory. The folder can be created from within the built-in file manager. Only Path and Name are mandatory. All other fields can be edited later. Icon will be resized to 80x80 PNG file (it does not modify the original). The icon can be added via Edit option, but it can't be changed once assigned.
+Of note is the Path field, which needs to be pointing to an _empty_ directory. The folder can be created from within the built-in file manager. Only Path and Name are mandatory. All other fields can be edited later. Icon will be resized to 80x80 PNG file (it does not modify the original). The icon can be added via Edit option, but it can't be changed once assigned.
 
 ### Mod Structure
 
-Once you create a new mod, it will contain 3 files: `mod.cfg` that describes your mod and `mod.gd` which is the script loaded by the game. There is also `GUMM_mod.gd`, which provides basic API for managing mod data. It should not be edited and your `mod.png` extends this file. The resources you want to add/replace should be contained within the mod directory; can be inside sub-folders.
+Once you create a new mod, it will contain 3 files: `mod.cfg` that describes your mod and `mod.gd` which is the script loaded by the game. There is also `GUMM_mod.gd`, which provides basic API for managing mod data. It should not be edited and your `mod.gd` extends this file. The resources you want to add/replace should be contained within the mod directory; can be inside sub-folders.
 
 Note that these 3 files vary depending on Godot version. GUMM will automatically copy the files based on the Godot version specified in the game's entry. There are 3 supported versions: `2.x`, `3.x`, `4.x`. They API is designed to support all minor releases, so `3.x` can be used from `3.0` to `3.6` (which is e.g. why it doesn't use typing, which was added in `3.1`).
 
@@ -91,41 +96,48 @@ Your `mod.gd` starts with `_initialize()` method, which takes `SceneTree` as an 
 Note that image and audio assets can't be loaded with `load()` and need to be loaded manually. The base modding script provides some helper methods to make it easier. Not all of them are available in all versions though. See next section for supported methods.
 
 Example `_initialize()` implementation that replaces single file:
+
 ```GDScript
 func _initialize(scene_tree: SceneTree) -> void:
 	replace_resource_at("res://Nodes/Player/Player.png", load_texture("mod://Player.png"))
 ```
+
 Note that `mod://` part is optional. The path will be converted to absolute path based on the main mod directory, which means you don't have to worry where your mode is located, as long as you use relative paths to files. If you load a resource that depends on another resource, you need to load the dependency first.
 
 You can use the `scene_tree` argument to e.g. inject custom nodes into scene tree, which allows some more advanced modding techniques.
 
 ### Feature Support and Method List
 
-|Feature|2.x|3.x|4.x|
-|---|---|---|---|
-|Load Textures|✔|✔|✔
-|Load OGG|✖|✔|✖
-|Load MP3|✖|✔¹|✔
-|Load WAV²|✖|✖|✖
-|Load GLTF²|✖|✖|✖
+| Feature                   | 2.x | 3.x | 4.x |
+| ------------------------- | --- | --- | --- |
+| Load Textures             | ✔   | ✔   | ✔   |
+| Load OGG                  | ✖   | ✔   | ✖   |
+| Load MP3                  | ✖   | ✔¹  | ✔   |
+| Load WAV²                 | ✖   | ✖   | ✖   |
+| Load GLTF²                | ✖   | ✖   | ✖   |
+| Threaded Resource Loading | ✖   | ✖   | ✔   |
 
 ¹Since 3.3
 
 ²Might come in future versions
 
 Basic methods:
+
 - `replace_resource_at(path: String, resource: Resource)` - injects the provided resource into the specified path
 - `load_resource(path: String)` - loads a resource from path relative to the mod directory
 - `get_full_path(path: String)` - translates relative path into global path
 
 Feature-dependent methods:
+
 - `load_texture(path: String, flags: int = 7)` [Load Textures] - loads a texture using Image class. Note that `flags` is removed in Godot 4.x
 - `load_ogg(path: String)` [Load OGG] - loads an OGG audio stream
 - `load_mp3(path: String)` [Load MP3] - loads a MP3 audio stream
+- `load_resource_threaded(path: String)` [Threaded Resource Loading] - loads a resource asynchronously using `ResourceLoader` threaded loading (4.x only)
 
 ### Modding API
 
 While GUMM does not require any modding support provided by the game, adding one would make modders' life easier. If you want to provide a modding API compatible with GUMM, all it requires is adding some methods available from a singleton. Provide this information to modders and they will be able to call these methods from the `mod.gd` file. For example:
+
 ```GDScript
 func _initialize(scene_tree: SceneTree) -> void:
 	var level = load_resource("mod://Level1.tscn")
@@ -137,15 +149,16 @@ func _initialize(scene_tree: SceneTree) -> void:
 
 If the developer does not provide any modding API, you are on your own. Unless the game is protected, it's easy to unpack and decompile the scripts. Once you unpack the project, you can run it using your own Godot executable, which makes testing much easier. Opening the project in editor is more difficult, as the source assets need to be extracted first.
 
-Keep in mind that, unless the project is open-source (which makes hacky modding pointless tbh), all assets are copyrighted. While personal use for modding purposes is *probably ok*, make sure your mods don't infringe the copyright by e.g. sharing some assets.
+Keep in mind that, unless the project is open-source (which makes hacky modding pointless tbh), all assets are copyrighted. While personal use for modding purposes is _probably ok_, make sure your mods don't infringe the copyright by e.g. sharing some assets.
 
 ## Examples
 
 GUMM comes with example mods for 3 games: Lumencraft, Spooky Ghosts Dot Com, Blastronaut Demo. Lumencraft has a free demo (mod-compatible), but Spooky Ghosts requires you to own the game if you want to see the mod in action.
 
-The game entries are located in GameInfo directory. You can use these mods as a reference on how your mods can work and take note of some *advanced modding techniques* (like manual file copying or node injection).
+The game entries are located in GameInfo directory. You can use these mods as a reference on how your mods can work and take note of some _advanced modding techniques_ (like manual file copying or node injection).
 
-___
-You can find all my addons on my [profile page](https://github.com/KoBeWi).
+## Running tests for GUMM
 
-<a href='https://ko-fi.com/W7W7AD4W4' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+```
+godot --headless -s addons/gut/gut_cmdln.gd
+```

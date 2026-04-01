@@ -74,9 +74,32 @@ size_flags_vertical = 8
 theme_override_font_sizes/font_size = 30
 text = "Enable Mods"
 
-[node name="ModList" type="VBoxContainer" parent="VBoxContainer2/VBoxContainer"]
+[node name="OverrideCfgWarning" type="Label" parent="VBoxContainer2/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0, 1)
+text = "This game disables override.cfg (GH-108818). Mods cannot be injected."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ModList" type="VBoxContainer" parent="VBoxContainer2/VBoxContainer/ScrollContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EmptyLabel" type="Label" parent="VBoxContainer2/VBoxContainer/ScrollContainer/ModList"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "No mods installed yet. Import or create a mod to get started."
+horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="Button" type="Button" parent="VBoxContainer2/VBoxContainer"]
 layout_mode = 2
@@ -102,7 +125,7 @@ min_size = Vector2i(600, 200)
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 592.0
-offset_bottom = 199.0
+offset_bottom = 200.0
 
 [node name="GridContainer" type="GridContainer" parent="ImportModDialog/VBoxContainer"]
 layout_mode = 2
@@ -157,6 +180,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="NewModDialog" type="ConfirmationDialog" parent="."]
 title = "Create Mod"
@@ -168,7 +192,7 @@ min_size = Vector2i(600, 200)
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 592.0
-offset_bottom = 231.0
+offset_bottom = 232.0
 
 [node name="GridContainer" type="GridContainer" parent="NewModDialog/VBoxContainer"]
 layout_mode = 2
@@ -200,6 +224,7 @@ text = "Name"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+placeholder_text = "My Mod"
 caret_blink = true
 caret_blink_interval = 0.5
 
@@ -220,6 +245,7 @@ text = "Version"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+placeholder_text = "1.0.0"
 caret_blink = true
 caret_blink_interval = 0.5
 
@@ -228,6 +254,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="DeleteConfirm" type="ConfirmationDialog" parent="."]
 
@@ -235,7 +262,8 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
-text = "Back"
+theme_override_font_sizes/font_size = 20
+text = "← Back to Game List"
 
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer/Button" to="." method="open_game_directory"]
 [connection signal="toggled" from="VBoxContainer2/VBoxContainer/ModsEnabled" to="." method="toggle_mods"]
@@ -247,5 +275,6 @@ text = "Back"
 [connection signal="text_changed" from="NewModDialog/VBoxContainer/GridContainer/NewModPath" to="." method="validate_new_mod"]
 [connection signal="text_changed" from="NewModDialog/VBoxContainer/GridContainer/IconPath" to="." method="validate_new_mod"]
 [connection signal="text_changed" from="NewModDialog/VBoxContainer/GridContainer/NewModName" to="." method="validate_new_mod" unbinds=1]
+[connection signal="text_changed" from="NewModDialog/VBoxContainer/GridContainer/NewModVersion" to="." method="validate_new_mod" unbinds=1]
 [connection signal="confirmed" from="DeleteConfirm" to="." method="remove_mod" binds= [true, true]]
 [connection signal="pressed" from="Button" to="." method="go_back"]
