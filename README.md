@@ -156,3 +156,9 @@ Keep in mind that, unless the project is open-source (which makes hacky modding 
 GUMM comes with example mods for 3 games: Lumencraft, Spooky Ghosts Dot Com, Blastronaut Demo. Lumencraft has a free demo (mod-compatible), but Spooky Ghosts requires you to own the game if you want to see the mod in action.
 
 The game entries are located in GameInfo directory. You can use these mods as a reference on how your mods can work and take note of some _advanced modding techniques_ (like manual file copying or node injection).
+
+## Running tests for GUMM
+
+```
+godot --headless -s addons/gut/gut_cmdln.gd
+```
