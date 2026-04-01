@@ -5,6 +5,7 @@ App for managing and creating mods for any Godot game, without needing to modify
 ## How does this work
 
 The manager takes advantage of two facts:
+
 - you can add `override.cfg` to your game and override any project setting
 - `Resource.take_over_path()` will make the resource literally take over the given path, so any `load()` calls will load it instead
 
@@ -15,6 +16,7 @@ For Godot 4.x, the mod loader uses a different approach: it registers itself as 
 ### Caveats
 
 There are a few things that make modding this way difficult or impossible:
+
 - debugging a mod is difficult, especially if the game uses a modified Godot build
 - in worst case, the game has no GDScript module, which makes this manager useless
 - the files can also be encrypted, making it more difficult to tinker with them
@@ -79,7 +81,7 @@ Creating mod entries is the same as creating game entries:
 
 ![](Media/CreateModDialog.png)
 
-Of note is the Path field, which needs to be pointing to an *empty* directory. The folder can be created from within the built-in file manager. Only Path and Name are mandatory. All other fields can be edited later. Icon will be resized to 80x80 PNG file (it does not modify the original). The icon can be added via Edit option, but it can't be changed once assigned.
+Of note is the Path field, which needs to be pointing to an _empty_ directory. The folder can be created from within the built-in file manager. Only Path and Name are mandatory. All other fields can be edited later. Icon will be resized to 80x80 PNG file (it does not modify the original). The icon can be added via Edit option, but it can't be changed once assigned.
 
 ### Mod Structure
 
@@ -94,35 +96,39 @@ Your `mod.gd` starts with `_initialize()` method, which takes `SceneTree` as an 
 Note that image and audio assets can't be loaded with `load()` and need to be loaded manually. The base modding script provides some helper methods to make it easier. Not all of them are available in all versions though. See next section for supported methods.
 
 Example `_initialize()` implementation that replaces single file:
+
 ```GDScript
 func _initialize(scene_tree: SceneTree) -> void:
 	replace_resource_at("res://Nodes/Player/Player.png", load_texture("mod://Player.png"))
 ```
+
 Note that `mod://` part is optional. The path will be converted to absolute path based on the main mod directory, which means you don't have to worry where your mode is located, as long as you use relative paths to files. If you load a resource that depends on another resource, you need to load the dependency first.
 
 You can use the `scene_tree` argument to e.g. inject custom nodes into scene tree, which allows some more advanced modding techniques.
 
 ### Feature Support and Method List
 
-|Feature|2.x|3.x|4.x|
-|---|---|---|---|
-|Load Textures|✔|✔|✔
-|Load OGG|✖|✔|✖
-|Load MP3|✖|✔¹|✔
-|Load WAV²|✖|✖|✖
-|Load GLTF²|✖|✖|✖
-|Threaded Resource Loading|✖|✖|✔
+| Feature                   | 2.x | 3.x | 4.x |
+| ------------------------- | --- | --- | --- |
+| Load Textures             | ✔   | ✔   | ✔   |
+| Load OGG                  | ✖   | ✔   | ✖   |
+| Load MP3                  | ✖   | ✔¹  | ✔   |
+| Load WAV²                 | ✖   | ✖   | ✖   |
+| Load GLTF²                | ✖   | ✖   | ✖   |
+| Threaded Resource Loading | ✖   | ✖   | ✔   |
 
 ¹Since 3.3
 
 ²Might come in future versions
 
 Basic methods:
+
 - `replace_resource_at(path: String, resource: Resource)` - injects the provided resource into the specified path
 - `load_resource(path: String)` - loads a resource from path relative to the mod directory
 - `get_full_path(path: String)` - translates relative path into global path
 
 Feature-dependent methods:
+
 - `load_texture(path: String, flags: int = 7)` [Load Textures] - loads a texture using Image class. Note that `flags` is removed in Godot 4.x
 - `load_ogg(path: String)` [Load OGG] - loads an OGG audio stream
 - `load_mp3(path: String)` [Load MP3] - loads a MP3 audio stream
@@ -131,6 +137,7 @@ Feature-dependent methods:
 ### Modding API
 
 While GUMM does not require any modding support provided by the game, adding one would make modders' life easier. If you want to provide a modding API compatible with GUMM, all it requires is adding some methods available from a singleton. Provide this information to modders and they will be able to call these methods from the `mod.gd` file. For example:
+
 ```GDScript
 func _initialize(scene_tree: SceneTree) -> void:
 	var level = load_resource("mod://Level1.tscn")
@@ -142,15 +149,10 @@ func _initialize(scene_tree: SceneTree) -> void:
 
 If the developer does not provide any modding API, you are on your own. Unless the game is protected, it's easy to unpack and decompile the scripts. Once you unpack the project, you can run it using your own Godot executable, which makes testing much easier. Opening the project in editor is more difficult, as the source assets need to be extracted first.
 
-Keep in mind that, unless the project is open-source (which makes hacky modding pointless tbh), all assets are copyrighted. While personal use for modding purposes is *probably ok*, make sure your mods don't infringe the copyright by e.g. sharing some assets.
+Keep in mind that, unless the project is open-source (which makes hacky modding pointless tbh), all assets are copyrighted. While personal use for modding purposes is _probably ok_, make sure your mods don't infringe the copyright by e.g. sharing some assets.
 
 ## Examples
 
 GUMM comes with example mods for 3 games: Lumencraft, Spooky Ghosts Dot Com, Blastronaut Demo. Lumencraft has a free demo (mod-compatible), but Spooky Ghosts requires you to own the game if you want to see the mod in action.
 
-The game entries are located in GameInfo directory. You can use these mods as a reference on how your mods can work and take note of some *advanced modding techniques* (like manual file copying or node injection).
-
-___
-You can find all my addons on my [profile page](https://github.com/KoBeWi).
-
-<a href='https://ko-fi.com/W7W7AD4W4' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+The game entries are located in GameInfo directory. You can use these mods as a reference on how your mods can work and take note of some _advanced modding techniques_ (like manual file copying or node injection).
